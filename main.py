@@ -16,13 +16,7 @@ class Game:
         # Tạo scene main menu
         main_menu = Menu(self.scene_manager)
         self.scene_manager.add_scene("MainMenu", main_menu)
-        
-        # Tạo các scene level
-        # for i in range(1, 7):
-        #     level_scene = LevelScene(self.scene_manager, i)
-        #     self.scene_manager.add_scene(f"Level{i}", level_scene)
-        
-        # Bắt đầu từ menu chính
+
         self.scene_manager.switch_to("MainMenu")
 
     def run(self):

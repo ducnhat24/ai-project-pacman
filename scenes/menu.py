@@ -3,7 +3,7 @@ import sys
 from scenes.base_scene import BaseScene
 from settings import *
 from utils.image_button import ImageButton
-
+from utils.sounds import Sounds
 class Menu(BaseScene):
     """Scene menu chính"""
     def __init__(self, scene_manager):
@@ -73,10 +73,15 @@ class Menu(BaseScene):
 
     def on_enter(self):
         """Được gọi khi vào scene menu"""
+        # Phát nhạc nền
+        Sounds().play_music("menu")
+
         print("Đã vào Main Menu")
 
     def on_exit(self):
         """Được gọi khi rời scene menu"""
+        # Dừng nhạc nền
+        Sounds().stop_music("menu")
         print("Đã rời Main Menu")
 
     def handle_events(self, events):
@@ -127,3 +132,6 @@ class Menu(BaseScene):
 
         # Vẽ nút thoát
         self.quit_button.draw(screen)
+
+
+

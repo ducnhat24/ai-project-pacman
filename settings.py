@@ -15,3 +15,36 @@ class LevelButtonImageConfig:
     
     IMAGE_PATH = "assets/images/buttons/"
 
+class Sounds:
+    def __init__(self):
+        pygame.mixer.init()  # Khởi tạo mixer của pygame
+        self.sounds = {
+            "chomp": pygame.mixer.Sound("assets/sounds/chomp.wav"),
+            "death": pygame.mixer.Sound("assets/sounds/death.wav"),
+            "eat_ghost": pygame.mixer.Sound("assets/sounds/eat_ghost.wav"),
+            "powerup": pygame.mixer.Sound("assets/sounds/powerup.wav"),
+            "start": pygame.mixer.Sound("assets/sounds/start.wav"),
+        }
+
+        # Đặt âm lượng mặc định (0.0 - 1.0)
+        for sound in self.sounds.values():
+            sound.set_volume(0.5)
+
+    def play(self, sound_name):
+        """Phát âm thanh theo tên"""
+        if sound_name in self.sounds:
+            self.sounds[sound_name].play()
+
+    def stop(self, sound_name):
+        """Dừng âm thanh theo tên"""
+        if sound_name in self.sounds:
+            self.sounds[sound_name].stop()
+
+    def set_volume(self, sound_name, volume):
+        """Chỉnh âm lượng (0.0 - 1.0)"""
+        if sound_name in self.sounds:
+            self.sounds[sound_name].set_volume(volume)
+
+    def stop_all(self):
+        """Dừng tất cả âm thanh"""
+        pygame.mixer.stop()
