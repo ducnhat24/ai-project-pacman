@@ -14,7 +14,7 @@ def reconstruct_path(came_from, start, goal):
         current = came_from[current]
     # path.append(start)  # Add start to the path
     path.reverse()  # Reverse the path to get it from start to goal
-    print(path)
+    #print(path)
     return path
 
 def is_valid(game_map, pos):
