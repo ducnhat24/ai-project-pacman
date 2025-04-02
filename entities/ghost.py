@@ -40,7 +40,6 @@ class Ghost(Entity):
 
     def update_direction(self, new_x, new_y):
         """ Cập nhật hướng di chuyển của Ghost """
-        print(f"Update direction: ({self.x}, {self.y}) -> ({new_x}, {new_y})")  # Debug hướng di chuyển
         if new_x < self.x:
             self.direction = "LEFT"
         elif new_x > self.x:
