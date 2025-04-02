@@ -2,8 +2,12 @@ import pygame
 
 class Config: 
     SCREEN_WIDTH = 1300
-    SCREEN_HEIGHT = 700
+    SCREEN_HEIGHT = 760
     SCREEN_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
+    BOARD_WIDTH = 630 #1020
+    BOARD_HEIGHT = 672
+    TITLE_WIDTH = BOARD_WIDTH/30
+    TITLE_HEIGHT = BOARD_HEIGHT/32
 
 class LevelButtonImageConfig:
     NORMAL_WIDTH = 220
@@ -48,3 +52,11 @@ class Sounds:
     def stop_all(self):
         """Dừng tất cả âm thanh"""
         pygame.mixer.stop()
+
+class Color:
+  color_wall = (0, 255, 255)
+  color_power_food = (255, 0, 255)
+  color_food = (250, 218, 94)
+  color_bg = (20, 20, 40)
+  color_fence = (255, 0, 255)
+  color_text = 'white'

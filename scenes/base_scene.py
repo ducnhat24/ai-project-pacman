@@ -1,10 +1,12 @@
 import pygame
 import abc
 from settings import *
+
 class BaseScene(abc.ABC):
     """Lớp cơ sở cho các scene"""
-    def __init__(self, scene_manager):
+    def __init__(self, scene_manager, screen):
         self.scene_manager = scene_manager
+        self.screen = screen  # Thêm screen vào constructor
         self.screen_width = Config.SCREEN_WIDTH
         self.screen_height = Config.SCREEN_HEIGHT
 

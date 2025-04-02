@@ -15,4 +15,4 @@ class Button:
 
     def draw(self, screen):
         """Vẽ nút lên màn hình (sử dụng rect làm ví dụ)"""
-        pygame.draw.rect(screen, (255, 0, 0), self.rect)  # Vẽ nút với màu đỏ (có thể tùy chỉnh)
+        pygame.draw.rect(screen, (255, 241, 213), self.rect)  

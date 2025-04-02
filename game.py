@@ -18,7 +18,7 @@ class Game:
         self.scene_manager = SceneManager()
         
         # Tạo scene main menu
-        main_menu = Menu(self.scene_manager)
+        main_menu = Menu(self.scene_manager, self.screen)  # Truyền screen vào Men
         self.scene_manager.add_scene("MainMenu", main_menu)
 
         self.scene_manager.switch_to("MainMenu")
