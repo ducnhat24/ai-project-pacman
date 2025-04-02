@@ -121,8 +121,8 @@ class MazeScene(BaseScene):
         # Khởi tạo Pacman và Ghosts khi vào scene
         self.pacman = Pacman(2, 2, self.board.game_map)  # Pacman ở vị trí (1, 1)
         self.ghosts = [
-            # Ghost(27, 29, self.board.game_map, "BFS", "blue"),
-            Ghost(27, 29, self.board.game_map, "DFS", "pink"),
+            Ghost(27, 29, self.board.game_map, "BFS", "blue"),
+            # Ghost(27, 29, self.board.game_map, "DFS", "pink"),
             # Ghost(17, 15, self.board.game_map, "A*", "red"),
             # Ghost(17, 16, self.board.game_map, "UCS", "orange")
         ]
