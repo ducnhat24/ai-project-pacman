@@ -1,7 +1,9 @@
 import sys
 import pygame
 
-from board_info import Board
+from board_info import BoardInfo
+from entities.ghost import Ghost
+from entities.pacman import Pacman
 from maze_drawing import MazeDrawing
 from scenes.base_scene import BaseScene
 from utils.button import Button
@@ -14,8 +16,19 @@ class MazeScene(BaseScene):
     """Scene hiển thị mê cung"""
     def __init__(self, scene_manager, screen):
         super().__init__(scene_manager, screen)  # Truyền screen vào constructor của BaseScene
-        self.board = Board()
+        self.board = BoardInfo()        
         self.maze = MazeDrawing(screen)  # Khởi tạo mê cung từ lớp Maze
+
+        # Khởi tạo Pacman
+        self.pacman = Pacman(1, 1, self.board.game_map)  # (1, 1) là vị trí khởi tạo Pacman
+        
+        # Khởi tạo Ghosts
+        self.ghosts = [
+            Ghost(5, 5, self.board.game_map, "blue", "blue"),
+            Ghost(5, 10, self.board.game_map, "pink", "pink"),
+            Ghost(5, 15, self.board.game_map, "red", "red"),
+            Ghost(5, 20, self.board.game_map, "orange", "orange")
+        ]
         
         # Kích thước nút bấm (dùng để vẽ các nút)
         self.button_width = 100
@@ -62,21 +75,51 @@ class MazeScene(BaseScene):
 
     def update(self, dt):
         """Cập nhật trạng thái trong mê cung"""
-        pass  # Bạn có thể thêm logic cập nhật nếu cần (ví dụ: di chuyển Pac-Man)
+        # Cập nhật vị trí Pacman (ví dụ: di chuyển theo hướng người chơi)
+        self.pacman.move(0, 0)  # Giả sử dx, dy là sự thay đổi theo hướng (có thể nhận từ các phím bấm)
+
+        # Cập nhật di chuyển của các Ghost
+        pacman_x, pacman_y = self.pacman.x, self.pacman.y
+        for ghost in self.ghosts:
+            ghost.move(pacman_x, pacman_y)  # Các Ghost di chuyển đến vị trí Pacman
+            ghost.follow_path()  # Di chuyển Ghost theo đường tìm được
+
+    # def render(self, screen):
+    #     """Vẽ mê cung"""
+    #     self.screen.fill((0, 0, 0))  
+    #     self.maze.draw()  
+
+    #     # Vẽ các nút bấm ở phía dưới
+    #     for button in self.buttons:
+    #         button.draw(self.screen)
+
+    #     # Vẽ nút thoát ở góc dưới bên phải
+    #     self.quit_button.draw(self.screen)
+
+    #     pygame.display.flip()
 
     def render(self, screen):
         """Vẽ mê cung"""
         self.screen.fill((0, 0, 0))  
-        self.maze.draw()  
+        self.maze.draw()  # Vẽ mê cung lên màn hình
 
-        # Vẽ các nút bấm ở phía dưới
+        # Vẽ Pacman
+        self.pacman.draw(self.screen, Config.TILE_HEIGHT)
+
+        # Vẽ các Ghost
+        for ghost in self.ghosts:
+            # print(f"Vẽ ghost {ghost.color} tại ({ghost.x}, {ghost.y})")  # Debug
+            ghost.draw(self.screen, Config.TILE_HEIGHT)
+
+        # Vẽ các nút bấm
         for button in self.buttons:
             button.draw(self.screen)
 
-        # Vẽ nút thoát ở góc dưới bên phải
+        # Vẽ nút thoát
         self.quit_button.draw(self.screen)
 
         pygame.display.flip()
+
 
     def handle_quit_event(self, event):
         """Xử lý sự kiện thoát game"""
@@ -85,11 +128,19 @@ class MazeScene(BaseScene):
             sys.exit()
 
     def on_enter(self):
-        """Được gọi khi vào scene menu"""
+        """Được gọi khi vào scene maze"""
         # Phát nhạc nền
         Sounds().play_music("menu")
 
-        print("Đã vào Main Menu")
+        # Khởi tạo Pacman và Ghosts khi vào scene
+        self.pacman = Pacman(2, 2, self.board.game_map)  # Pacman ở vị trí (1, 1)
+        self.ghosts = [
+            Ghost(27, 29, self.board.game_map, "BFS", "blue"),
+            # Ghost(16, 16, self.board.game_map, "DFS", "pink"),
+            # Ghost(17, 15, self.board.game_map, "A*", "red"),
+            # Ghost(17, 16, self.board.game_map, "UCS", "orange")
+        ]
+        print("Đã vào Maze Scene")
 
     def on_exit(self):
         """Được gọi khi rời scene menu"""

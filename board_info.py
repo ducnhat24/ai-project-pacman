@@ -1,21 +1,37 @@
 import copy
 from math import pi
 import pygame
+from entities.entity import Entity
 from settings import Config, Color
 
-class Board:
+class BoardInfo:
+
     # 0 = empty black rectangle, 1 = dot, 2 = big dot, 3 = vertical line,
     # 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right
     # 9 = gate
+    # Các hằng số định danh nhân vật
     PACMAN = 50
     BLUE_GHOST = 60
     PINK_GHOST = 61
     RED_GHOST = 62
     ORANGE_GHOST = 63
+
+    # Kích thước mê cung
     ROWS = 33
     COLS = 30
     BLANK = 0
-    
+
+    #Cảm thấy khúc lưu vị trí này không cần thiết lắm
+
+    # # Danh sách lưu vị trí của Pac-Man và Ghosts
+    # pacman_position = (15, 15)  # Vị trí khởi tạo (giả định)
+    # ghosts_positions = {
+    #     "blue": (14, 14),
+    #     "pink": (14, 15),
+    #     "red": (14, 16),
+    #     "orange": (14, 17)
+    # }
+
     coordinates = []
     nodes = {(21, 16), (27, 4), (27, 13), (14, 13), (2, 2), (6, 2), (15, 14), (16, 13), (18, 10), (18, 19), (30, 2), (14, 15), (9, 10), (9, 19), (24, 10), (15, 7), (24, 19), (15, 16), (6, 13), (16, 15), (21, 2), (14, 17), (30, 13), (15, 0), (16, 17), (2, 27), (12, 13), (6, 27), (27, 22), (30, 27), (12, 15), (14, 12), (21, 27), (9, 7), (9, 16), (24, 7), (24, 16), (15, 13), (2, 13), (16, 12), (24, 25), (2, 22), (6, 22), (14, 14), (16, 14), (21, 13), (12, 10), (21, 22), (9, 2), (12, 19), (14, 16), (27, 10), (24, 2), (27, 19), (16, 16), (15, 29), (24, 4), (6, 10), (15, 22), (6, 19), (12, 14), (9, 27), (15, 15), (21, 10), (24, 27), (21, 19), (12, 16), (27, 7), (27, 16), (27, 25), (15, 17), (9, 13), (27, 27), (2, 7), (9, 22), (2, 16), (24, 13), (15, 10), (6, 7), (24, 22), (15, 19), (6, 16), (27, 2), (30, 16), (15, 12), (21, 7)}
 
@@ -54,8 +70,24 @@ class Board:
     [3, 7, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 3],
     [7, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8]
     ]  
-    maze = initMaze.copy()  # Create a copy of the initial maze
-        
+    
+    def __init__(self):
+        self.pacman = None
+        self.ghosts = []
+        # Initialize game_map by copying initMaze
+        self.game_map = copy.deepcopy(self.initMaze)
 
+
+    #Thấy hết cần thiết gòi :>
+    # # Hàm cập nhật vị trí Pac-Man
+    # @classmethod
+    # def update_pacman_position(cls, new_position):
+    #     cls.pacman_position = new_position
+
+    # # Hàm cập nhật vị trí Ghost
+    # @classmethod
+    # def update_ghost_position(cls, ghost_color, new_position):
+    #     if ghost_color in cls.ghosts_positions:
+    #         cls.ghosts_positions[ghost_color] = new_position
 
 

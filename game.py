@@ -39,6 +39,7 @@ class Game:
             
             # Cập nhật màn hình
             pygame.display.flip()
+    
 
     def show_splash_screen(self, screen):
         """Hiển thị logo hoặc thông điệp 'Loading'"""
