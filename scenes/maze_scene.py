@@ -84,20 +84,6 @@ class MazeScene(BaseScene):
             ghost.move(pacman_x, pacman_y)  # Các Ghost di chuyển đến vị trí Pacman
             ghost.follow_path()  # Di chuyển Ghost theo đường tìm được
 
-    # def render(self, screen):
-    #     """Vẽ mê cung"""
-    #     self.screen.fill((0, 0, 0))  
-    #     self.maze.draw()  
-
-    #     # Vẽ các nút bấm ở phía dưới
-    #     for button in self.buttons:
-    #         button.draw(self.screen)
-
-    #     # Vẽ nút thoát ở góc dưới bên phải
-    #     self.quit_button.draw(self.screen)
-
-    #     pygame.display.flip()
-
     def render(self, screen):
         """Vẽ mê cung"""
         self.screen.fill((0, 0, 0))  
@@ -135,8 +121,8 @@ class MazeScene(BaseScene):
         # Khởi tạo Pacman và Ghosts khi vào scene
         self.pacman = Pacman(2, 2, self.board.game_map)  # Pacman ở vị trí (1, 1)
         self.ghosts = [
-            Ghost(27, 29, self.board.game_map, "BFS", "blue"),
-            # Ghost(16, 16, self.board.game_map, "DFS", "pink"),
+            # Ghost(27, 29, self.board.game_map, "BFS", "blue"),
+            Ghost(27, 29, self.board.game_map, "DFS", "pink"),
             # Ghost(17, 15, self.board.game_map, "A*", "red"),
             # Ghost(17, 16, self.board.game_map, "UCS", "orange")
         ]

@@ -3,7 +3,7 @@ import sys
 from scenes.base_scene import BaseScene
 from scenes.maze_scene import MazeScene
 from settings import *
-from utils.image_button import ImageButton  # Đảm bảo import đúng ImageButton
+from utils.image_button import ImageButton 
 from utils.sounds import Sounds
 
 class Menu(BaseScene):
@@ -96,25 +96,13 @@ class Menu(BaseScene):
         self.quit_button.update(dt)  # Cập nhật nút thoát game
 
 
-    # def start_level(self, level):
-    #     """Bắt đầu level được chọn"""
-    #     print(f"Chuyển sang Level {level}")
-    #     self.scene_manager.switch_to(f"Level{level}")
-
-    # def start_level(self, level):
-    #     """Bắt đầu level được chọn, chuyển sang MazeScene"""
-    #     print(f"Chuyển sang Level {level}")
-    #     maze_scene = MazeScene(self.scene_manager)  # Tạo scene MazeScene
-    #     self.scene_manager.add_scene(f"Level{level}", maze_scene)
-    #     self.scene_manager.switch_to(f"Level{level}")
-
     def start_level(self, level):
         """Bắt đầu level được chọn, chuyển sang MazeScene"""
         print(f"Chuyển sang Level {level}")
         maze_scene = MazeScene(self.scene_manager, self.screen)
         self.scene_manager.add_scene(f"Level{level}", maze_scene)
         self.scene_manager.switch_to(f"Level{level}")
-        
+
 
 
     def update(self, dt):

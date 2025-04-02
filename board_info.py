@@ -32,6 +32,18 @@ class BoardInfo:
     #     "orange": (14, 17)
     # }
 
+    #Thấy hết cần thiết gòi :>
+    # # Hàm cập nhật vị trí Pac-Man
+    # @classmethod
+    # def update_pacman_position(cls, new_position):
+    #     cls.pacman_position = new_position
+
+    # # Hàm cập nhật vị trí Ghost
+    # @classmethod
+    # def update_ghost_position(cls, ghost_color, new_position):
+    #     if ghost_color in cls.ghosts_positions:
+    #         cls.ghosts_positions[ghost_color] = new_position
+
     coordinates = []
     nodes = {(21, 16), (27, 4), (27, 13), (14, 13), (2, 2), (6, 2), (15, 14), (16, 13), (18, 10), (18, 19), (30, 2), (14, 15), (9, 10), (9, 19), (24, 10), (15, 7), (24, 19), (15, 16), (6, 13), (16, 15), (21, 2), (14, 17), (30, 13), (15, 0), (16, 17), (2, 27), (12, 13), (6, 27), (27, 22), (30, 27), (12, 15), (14, 12), (21, 27), (9, 7), (9, 16), (24, 7), (24, 16), (15, 13), (2, 13), (16, 12), (24, 25), (2, 22), (6, 22), (14, 14), (16, 14), (21, 13), (12, 10), (21, 22), (9, 2), (12, 19), (14, 16), (27, 10), (24, 2), (27, 19), (16, 16), (15, 29), (24, 4), (6, 10), (15, 22), (6, 19), (12, 14), (9, 27), (15, 15), (21, 10), (24, 27), (21, 19), (12, 16), (27, 7), (27, 16), (27, 25), (15, 17), (9, 13), (27, 27), (2, 7), (9, 22), (2, 16), (24, 13), (15, 10), (6, 7), (24, 22), (15, 19), (6, 16), (27, 2), (30, 16), (15, 12), (21, 7)}
 
@@ -78,16 +90,6 @@ class BoardInfo:
         self.game_map = copy.deepcopy(self.initMaze)
 
 
-    #Thấy hết cần thiết gòi :>
-    # # Hàm cập nhật vị trí Pac-Man
-    # @classmethod
-    # def update_pacman_position(cls, new_position):
-    #     cls.pacman_position = new_position
 
-    # # Hàm cập nhật vị trí Ghost
-    # @classmethod
-    # def update_ghost_position(cls, ghost_color, new_position):
-    #     if ghost_color in cls.ghosts_positions:
-    #         cls.ghosts_positions[ghost_color] = new_position
 
 

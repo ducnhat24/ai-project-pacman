@@ -51,22 +51,6 @@ class Pacman(Entity):
         elif self.direction == "DOWN":
             self.current_image = self.images["DOWN"]
 
-    # def draw(self, screen, tile_size):
-    #     """ Vẽ Pac-Man lên màn hình """
-    #     offset_x = self.maze_drawing.offset_x
-    #     offset_y = self.maze_drawing.offset_y
-
-    #     # Scale the Pac-Man image to fit the tile size
-    #     scaled_image = pygame.transform.scale(self.current_image, (tile_size, tile_size))
-        
-    #     # Calculate the drawing position with the offsets
-    #     draw_x = self.y * tile_size + offset_x
-    #     draw_y = self.x * tile_size + offset_y
-        
-    #     # Render Pac-Man on the screen at the correct position
-    #     screen.blit(scaled_image, (draw_x, draw_y))
-
-
     def draw(self, screen, tile_size):
         """ Vẽ Pacman lên màn hình """
         offset_x = self.maze_drawing.offset_x

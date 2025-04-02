@@ -25,11 +25,6 @@ class Entity:
         # Kiểm tra các hướng di chuyển và thêm vào valid_moves nếu hợp lệ
         return valid_moves
 
-    # def is_valid_move(self, direction):
-    #     """ Kiểm tra xem có thể di chuyển theo hướng direction không """
-    #     # Kiểm tra xem hướng di chuyển có va chạm với tường không
-    #     return True
-
     def is_valid_move(self, dx, dy):
         """Kiểm tra xem có thể di chuyển theo hướng dx, dy không"""
         new_x = dx

@@ -14,7 +14,7 @@ class MazeDrawing:
         self.map = copy.deepcopy(self.board.game_map)  # Initialize the maze from Board
         self.screen = screen
         # Check xem map có rỗng không
-        if not self.map: # Kiểm tra xem map có rỗng không
+        if not self.map:
             return
         self.num_rows = len(self.map)
         if self.num_rows == 0 or not self.map[0]: 
@@ -32,25 +32,6 @@ class MazeDrawing:
 
 
     def draw(self):
-        # # Check xem map có rỗng không
-        # if not self.map: # Kiểm tra xem map có rỗng không
-        #     return
-        # num_rows = len(self.map)
-        # if num_rows == 0 or not self.map[0]: 
-        #     return
-        # num_cols = len(self.map[0])
-
-        # total_map_width_px = num_cols * self.TILE_WIDTH
-        # total_map_height_px = num_rows * self.TILE_HEIGHT
-
-        # screen_width = Config.SCREEN_WIDTH
-        # screen_height = Config.SCREEN_HEIGHT
-
-        # # Tính toán vị trí bắt đầu vẽ (offset) để căn giữa
-        # offset_x = (screen_width - total_map_width_px) // 2 
-        # # offset_y = (screen_height - total_map_height_px) // 2
-        # offset_y = 10
-
 
         # --- Vòng lặp vẽ từng ô, áp dụng offset ---
         for i in range(self.num_rows):
