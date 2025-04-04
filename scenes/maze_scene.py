@@ -10,6 +10,7 @@ from scenes.base_scene import BaseScene
 from utils.button import Button
 from utils.sounds import Sounds
 from utils.text_button import TextButton
+from utils.performance_monitor import PerformanceMonitor
 from settings import Config
 from level_config import TEST_CASES, LEVELS
 
@@ -26,6 +27,9 @@ class MazeScene(BaseScene):
         
         # Khởi tạo Pacman
         self.pacman = Pacman(2, 2, self.board.game_map) 
+        
+        # Khởi tạo PerformanceMonitor
+        self.performance_monitor = PerformanceMonitor()
         
         # Khởi tạo Ghosts theo cấu hình level
         self.ghosts = []
@@ -100,7 +104,8 @@ class MazeScene(BaseScene):
             self.game_started = False
             self.show_text = True
             self.last_blink_time = time.time()
-            
+
+
             # Reset vị trí Pacman về vị trí ban đầu
             self.pacman = Pacman(2, 2, self.board.game_map)
             
@@ -123,14 +128,29 @@ class MazeScene(BaseScene):
     def handle_events(self, events):
         """Xử lý sự kiện trong mê cung"""
         for event in events:
+            # Xử lý sự kiện cho PerformanceMonitor trước
+            if self.performance_monitor.handle_events(event):
+                continue
+
             if event.type == pygame.QUIT:
                 self.handle_quit_event(event)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not self.game_started:
                     self.game_started = True
-                    Sounds().play_sound("start")  # Phát âm thanh khi bắt đầu
+                    self.performance_monitor.start_monitoring()  # Bắt đầu theo dõi
+                    Sounds().play_sound("start")
                 elif event.key == pygame.K_r and self.game_started:  # Reset về test case đầu tiên
                     self.set_test_case("test1")
+                # Xử lý di chuyển Pacman trong level 6
+                elif self.game_started and self.level_id == 6:
+                    if event.key == pygame.K_UP or event.key == pygame.K_w:
+                        self.pacman.move(0, -1)
+                    elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                        self.pacman.move(0, 1)
+                    elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                        self.pacman.move(-1, 0)
+                    elif event.key == pygame.K_RIGHT:
+                        self.pacman.move(1, 0)
             # Xử lý các nút bấm
             for button in self.buttons:
                 button.update(event)
@@ -141,19 +161,26 @@ class MazeScene(BaseScene):
         if not self.game_started:
             # Cập nhật hiệu ứng nhấp nháy
             current_time = time.time()
-            if current_time - self.last_blink_time > 0.2:  # Nhấp nháy mỗi 0.2 giây
+            if current_time - self.last_blink_time > 0.2:
                 self.show_text = not self.show_text
                 self.last_blink_time = current_time
 
         if self.game_started:
-            # Cập nhật vị trí Pacman (ví dụ: di chuyển theo hướng người chơi)
-            self.pacman.move(0, 0)  # Giả sử dx, dy là sự thay đổi theo hướng (có thể nhận từ các phím bấm)
+
 
             # Cập nhật di chuyển của các Ghost
             pacman_x, pacman_y = self.pacman.x, self.pacman.y
             for ghost in self.ghosts:
-                ghost.move(pacman_x, pacman_y)  # Các Ghost di chuyển đến vị trí Pacman
-                ghost.follow_path()  # Di chuyển Ghost theo đường tìm được
+                ghost.move(pacman_x, pacman_y)
+                ghost.follow_path()
+                # Tăng số lượng node đã mở rộng
+                self.performance_monitor.increment_expanded_nodes()
+
+            # Kiểm tra va chạm với Ghost
+            for ghost in self.ghosts:
+                if ghost.x == self.pacman.x and ghost.y == self.pacman.y:
+                    self.performance_monitor.stop_monitoring()  # Dừng theo dõi khi bị bắt
+                    
 
     def render(self, screen):
         """Vẽ mê cung"""
@@ -185,6 +212,9 @@ class MazeScene(BaseScene):
                 start_text = self.start_message_font.render("Press SPACE to start", True, (255, 255, 255))
                 start_rect = start_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2 ))
                 screen.blit(start_text, start_rect)
+
+        # Vẽ popup hiệu suất nếu cần
+        self.performance_monitor.draw_popup(screen)
 
         pygame.display.flip()
 

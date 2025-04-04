@@ -36,7 +36,7 @@ class Ghost(Entity):
             self.update_direction(new_x, new_y)  # Cập nhật hướng di chuyển ngay sau khi di chuyển
             self.x, self.y = new_x, new_y
 
-            sleep(0.3)  # Thời gian nghỉ giữa các bước di chuyển
+            sleep(0)  # Thời gian nghỉ giữa các bước di chuyển
 
     def update_direction(self, new_x, new_y):
         """ Cập nhật hướng di chuyển của Ghost """
