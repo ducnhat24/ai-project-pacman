@@ -23,9 +23,9 @@ class Ghost(Entity):
         self.maze_drawing = MazeDrawing(self.game_map)
         self.direction = "FACE"  # Hướng di chuyển mặc định
 
-    def move(self, pacman_x, pacman_y):
+    def move(self, pacman_x, pacman_y, performance_monitor=None):
         """ Gọi PathFinding để tìm đường cho từng ghost """
-        self.path = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type)
+        self.path = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type, performance_monitor)
 
     def follow_path(self):
         """ Di chuyển theo đường tìm được """

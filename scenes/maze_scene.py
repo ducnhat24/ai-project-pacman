@@ -166,21 +166,17 @@ class MazeScene(BaseScene):
                 self.last_blink_time = current_time
 
         if self.game_started:
-
-
             # Cập nhật di chuyển của các Ghost
             pacman_x, pacman_y = self.pacman.x, self.pacman.y
             for ghost in self.ghosts:
-                ghost.move(pacman_x, pacman_y)
+                # Truyền performance_monitor vào thuật toán tìm đường
+                ghost.move(pacman_x, pacman_y, self.performance_monitor)
                 ghost.follow_path()
-                # Tăng số lượng node đã mở rộng
-                self.performance_monitor.increment_expanded_nodes()
 
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 if ghost.x == self.pacman.x and ghost.y == self.pacman.y:
                     self.performance_monitor.stop_monitoring()  # Dừng theo dõi khi bị bắt
-                    
 
     def render(self, screen):
         """Vẽ mê cung"""

@@ -8,21 +8,29 @@ class BFS:
     # theo dạng danh sách các tọa độ (x, y)
     # lưu ý là tọa độ bắt đầu và đích đều là tuple (x, y)
     # giá trị trả về là một danh sách chứa các tọa độ (x, y) từ vị trí bắt đầu đến vị trí đích (nhưng không lấy vị trí bắt đầu)
-    def find_path(game_map, start, goal):
+    def find_path(game_map, start, goal, performance_monitor=None):
         queue = deque([start])
         came_from = {start: None}
+        expanded_nodes = 0  # Biến đếm số node đã mở rộng
 
         while queue:
             current = queue.popleft()
+            expanded_nodes += 1  # Tăng số node đã mở rộng
+            
             if current == goal:
                 break
+                
             x, y = current
             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 next_pos = (x + dx, y + dy)
                 if next_pos not in came_from and is_valid(game_map, next_pos):
                     queue.append(next_pos)
                     came_from[next_pos] = current
-          
+        
+        # Cập nhật số node đã mở rộng vào performance_monitor nếu có
+        if performance_monitor:
+            performance_monitor.increment_expanded_nodes(expanded_nodes)
+        
         # Check if goal was reached
         if goal not in came_from:
             # No path found - return a path containing just the start position
