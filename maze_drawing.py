@@ -13,6 +13,10 @@ class MazeDrawing:
         self.board = BoardInfo()  # Khởi tạo BoardInfo
         self.map = copy.deepcopy(self.board.game_map)  # Initialize the maze from Board
         self.screen = screen
+        
+        # Define shadow color
+        self.shadow_color = (50, 50, 50, 128)
+        
         # Check xem map có rỗng không
         if not self.map:
             return
@@ -30,9 +34,36 @@ class MazeDrawing:
         self.offset_x = (screen_width - total_map_width_px) // 2
         self.offset_y = 10
 
+    def draw_rounded_line(self, surface, color, start_pos, end_pos, width, shadow=False):
+        if shadow:
+            # Draw shadow first
+            shadow_color = self.shadow_color
+            shadow_offset = 2
+            pygame.draw.line(surface, shadow_color, 
+                           (start_pos[0] + shadow_offset, start_pos[1] + shadow_offset),
+                           (end_pos[0] + shadow_offset, end_pos[1] + shadow_offset),
+                           width)
+        
+        # Draw main line
+        pygame.draw.line(surface, color, start_pos, end_pos, width)
+        
+        # Draw rounded caps
+        pygame.draw.circle(surface, color, start_pos, width//2)
+        pygame.draw.circle(surface, color, end_pos, width//2)
+
+    def draw_rounded_arc(self, surface, color, rect, start_angle, end_angle, width, shadow=False):
+        if shadow:
+            # Draw shadow first
+            shadow_color = self.shadow_color
+            shadow_offset = 2
+            shadow_rect = pygame.Rect(rect.x + shadow_offset, rect.y + shadow_offset, 
+                                    rect.width, rect.height)
+            pygame.draw.arc(surface, shadow_color, shadow_rect, start_angle, end_angle, width)
+        
+        # Draw main arc
+        pygame.draw.arc(surface, color, rect, start_angle, end_angle, width)
 
     def draw(self):
-
         # --- Vòng lặp vẽ từng ô, áp dụng offset ---
         for i in range(self.num_rows):
             for j in range(self.num_cols):
@@ -56,81 +87,73 @@ class MazeDrawing:
 
                 # --- Vẽ các loại ô ---
                 if cell == 1: # normal food
-                    pygame.draw.circle(self.screen, Color.color_food, (int_center_x, int_center_y), 4)
+                    # Draw glow effect
+                    for radius in range(3, 1, -1):  # Giảm kích thước glow effect
+                        alpha = int(255 * (1 - (radius - 1) / 2))  # Điều chỉnh alpha cho glow effect nhỏ hơn
+                        color = (*Color.color_food[:3], alpha)
+                        pygame.draw.circle(self.screen, color, (int_center_x, int_center_y), radius)
+                    # Draw main dot
+                    pygame.draw.circle(self.screen, Color.color_food, (int_center_x, int_center_y), 1)  # Giảm kích thước dot chính
 
                 elif cell == 2: # power food
-                    pygame.draw.circle(self.screen, Color.color_power_food, (int_center_x, int_center_y), 10)
+                    # Draw glow effect
+                    for radius in range(6, 4, -1):  # Giảm kích thước glow effect
+                        alpha = int(255 * (1 - (radius - 4) / 2))  # Điều chỉnh alpha cho glow effect nhỏ hơn
+                        color = (*Color.color_power_food[:3], alpha)
+                        pygame.draw.circle(self.screen, color, (int_center_x, int_center_y), radius)
+                    # Draw main dot
+                    pygame.draw.circle(self.screen, Color.color_power_food, (int_center_x, int_center_y), 4)  # Giảm kích thước dot chính
 
-                elif cell == 3: # vertical wall (vẽ đường thẳng đứng giữa ô)
-                    pygame.draw.line(self.screen, Color.color_wall,
-                                    (int_center_x, int_base_y), # Điểm bắt đầu (trên)
-                                    (int_center_x, int_base_y + int_TILE_HEIGHT), # Điểm kết thúc (dưới)
-                                    4)
+                elif cell == 3: # vertical wall
+                    self.draw_rounded_line(self.screen, Color.color_wall,
+                                        (int_center_x, int_base_y),
+                                        (int_center_x, int_base_y + int_TILE_HEIGHT),
+                                        6, shadow=True)
 
-                elif cell == 4: # horizontal wall (vẽ đường ngang giữa ô)
-                    pygame.draw.line(self.screen, Color.color_wall,
-                                    (int_base_x, int_center_y), # Điểm bắt đầu (trái)
-                                    (int_base_x + int_TILE_WIDTH, int_center_y), # Điểm kết thúc (phải)
-                                    4)
-
-                # --- Vẽ các cung tròn (góc tường) ---
-                # Lưu ý: Vẽ cung tròn trong pygame hơi phức tạp.
-                # Nó yêu cầu một hình chữ nhật bao quanh (bounding rectangle) [left, top, width, height]
-                # và góc bắt đầu, góc kết thúc (bằng radian).
-                # Các tính toán gốc của bạn có vẻ hơi phức tạp, có thể cần điều chỉnh lại
-                # dựa trên cách bạn muốn góc tường hiển thị chính xác.
-                # Dưới đây là áp dụng offset vào các tính toán gốc đó, nhưng bạn có thể cần xem lại logic vẽ arc.
+                elif cell == 4: # horizontal wall
+                    self.draw_rounded_line(self.screen, Color.color_wall,
+                                        (int_base_x, int_center_y),
+                                        (int_base_x + int_TILE_WIDTH, int_center_y),
+                                        6, shadow=True)
 
                 elif cell == 5: # Góc dưới-trái
-                    # Tính toán gốc: [(j * self.TILE_WIDTH - (self.TILE_WIDTH * 0.4)) - 2, cy, self.TILE_WIDTH, self.TILE_HEIGHT]
-                    # Áp dụng offset:
-                    rect_left = int(draw_base_x - int_TILE_WIDTH * 0.4 - 2) # Tọa độ left của rect
-                    rect_top = int(draw_center_y) # Tọa độ top của rect (dựa trên cy gốc)
+                    rect_left = int(draw_base_x - int_TILE_WIDTH * 0.4 - 2)
+                    rect_top = int(draw_center_y)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
                     try:
-                        pygame.draw.arc(self.screen, Color.color_wall, arc_rect, 0, pi / 2, 4)
-                    except ValueError: # Bắt lỗi nếu width/height của rect < 0
+                        self.draw_rounded_arc(self.screen, Color.color_wall, arc_rect, 0, pi / 2, 6, shadow=True)
+                    except ValueError:
                         print(f"Warning: Invalid rect for arc cell 5 at ({i},{j}): {arc_rect}")
 
-
                 elif cell == 6: # Góc dưới-phải
-                    # Tính toán gốc: [(j * self.TILE_WIDTH + (self.TILE_WIDTH * 0.5)), cy, self.TILE_WIDTH, self.TILE_HEIGHT]
-                    # Áp dụng offset:
                     rect_left = int(draw_base_x + int_TILE_WIDTH * 0.5)
                     rect_top = int(draw_center_y)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
                     try:
-                        pygame.draw.arc(self.screen, Color.color_wall, arc_rect, pi / 2, pi, 4)
+                        self.draw_rounded_arc(self.screen, Color.color_wall, arc_rect, pi / 2, pi, 6, shadow=True)
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 6 at ({i},{j}): {arc_rect}")
 
-
                 elif cell == 7: # Góc trên-phải
-                    # Tính toán gốc: [(j * self.TILE_WIDTH + (self.TILE_WIDTH * 0.5)), (i * self.TILE_HEIGHT - (0.4 * self.TILE_HEIGHT)), self.TILE_WIDTH, self.TILE_HEIGHT]
-                    # Áp dụng offset:
                     rect_left = int(draw_base_x + int_TILE_WIDTH * 0.5)
                     rect_top = int(draw_base_y - int_TILE_HEIGHT * 0.4)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
                     try:
-                        pygame.draw.arc(self.screen, Color.color_wall, arc_rect, pi, 3 * pi / 2, 4)
+                        self.draw_rounded_arc(self.screen, Color.color_wall, arc_rect, pi, 3 * pi / 2, 6, shadow=True)
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 7 at ({i},{j}): {arc_rect}")
 
-
                 elif cell == 8: # Góc trên-trái
-                    # Tính toán gốc: [(j * self.TILE_WIDTH - (self.TILE_WIDTH * 0.4)) - 2, (i * self.TILE_HEIGHT - (0.4 * self.TILE_HEIGHT)), self.TILE_WIDTH, self.TILE_HEIGHT]
-                    # Áp dụng offset:
                     rect_left = int(draw_base_x - int_TILE_WIDTH * 0.4 - 2)
                     rect_top = int(draw_base_y - int_TILE_HEIGHT * 0.4)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
                     try:
-                        pygame.draw.arc(self.screen, Color.color_wall, arc_rect, 3 * pi / 2, 2 * pi, 4)
+                        self.draw_rounded_arc(self.screen, Color.color_wall, arc_rect, 3 * pi / 2, 2 * pi, 6, shadow=True)
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 8 at ({i},{j}): {arc_rect}")
 
-
-                elif cell == 9: # fence (hàng rào - vẽ đường ngang giữa ô)
-                    pygame.draw.line(self.screen, Color.color_fence,
-                                    (int_base_x, int_center_y),
-                                    (int_base_x + int_TILE_WIDTH, int_center_y),
-                                    4)
+                elif cell == 9: # fence
+                    self.draw_rounded_line(self.screen, Color.color_fence,
+                                        (int_base_x, int_center_y),
+                                        (int_base_x + int_TILE_WIDTH, int_center_y),
+                                        4, shadow=True)
