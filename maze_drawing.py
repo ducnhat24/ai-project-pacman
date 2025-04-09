@@ -116,7 +116,7 @@ class MazeDrawing:
                                         (int_base_x + int_TILE_WIDTH, int_center_y),
                                         6, shadow=True)
 
-                elif cell == 5: # Góc dưới-trái
+                elif cell == 5: # Góc trên-phải
                     rect_left = int(draw_base_x - int_TILE_WIDTH * 0.4 - 2)
                     rect_top = int(draw_center_y)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
@@ -125,7 +125,7 @@ class MazeDrawing:
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 5 at ({i},{j}): {arc_rect}")
 
-                elif cell == 6: # Góc dưới-phải
+                elif cell == 6: # Góc trên-trái
                     rect_left = int(draw_base_x + int_TILE_WIDTH * 0.5)
                     rect_top = int(draw_center_y)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
@@ -134,7 +134,7 @@ class MazeDrawing:
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 6 at ({i},{j}): {arc_rect}")
 
-                elif cell == 7: # Góc trên-phải
+                elif cell == 7: # Góc dưới-trái
                     rect_left = int(draw_base_x + int_TILE_WIDTH * 0.5)
                     rect_top = int(draw_base_y - int_TILE_HEIGHT * 0.4)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
@@ -143,7 +143,7 @@ class MazeDrawing:
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 7 at ({i},{j}): {arc_rect}")
 
-                elif cell == 8: # Góc trên-trái
+                elif cell == 8: # Góc dưới-phải
                     rect_left = int(draw_base_x - int_TILE_WIDTH * 0.4 - 2)
                     rect_top = int(draw_base_y - int_TILE_HEIGHT * 0.4)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)

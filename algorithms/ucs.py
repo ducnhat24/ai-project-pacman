@@ -4,19 +4,51 @@ from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pa
 
 class UCS:
     @staticmethod
-    # Hàm này yêu cầu trả về đường đi từ vị trí bắt đầu đến vị trí đích
-    # theo dạng danh sách các tọa độ (x, y)
-    # lưu ý là tọa độ bắt đầu và đích đều là tuple (x, y)
-    # giá trị trả về là một danh sách chứa các tọa độ (x, y) từ vị trí bắt đầu đến vị trí đích (nhưng không lấy vị trí bắt đầu)
-
-    # Hàm có thể bạn sẽ cần sử dụng trong các thuật toán tìm đường:
-
-    # pathfinding_utils.is_valid(game_map, next_pos):  # Kiểm tra xem next_pos (x, y) có hợp lệ không 
-    # pathfinding_utils.reconstruct_path(came_from, start, goal):  # Trả về đường đi từ start đến goal, 
-    # với giá trị truyền vào là came_from:  ghi lại các điểm mà từ đó bạn đã di chuyển đến các điểm khác trong quá trình tìm đường.
-    # start: tọa độ bắt đầu (x, y)
-    # goal: tọa độ đích (x, y) 
-
+    # Hàm này trả về đường đi từ vị trí bắt đầu đến vị trí đích dưới dạng danh sách các tọa độ (x, y)
+    # Lưu ý: trả về không bao gồm tọa độ bắt đầu.
     def find_path(game_map, start, goal):
-        print("UCS algorithm is not implemented yet.")
-        return [], 0
+        open_set = []
+        heapq.heappush(open_set, (0, start))
+        
+        came_from = {start: None}
+        cost_so_far = {start: 0}
+        
+        expanded_nodes = 0
+
+        while open_set:
+            # Lấy phần tử có chi phí thấp nhất
+            current_cost, current = heapq.heappop(open_set)
+            expanded_nodes += 1
+
+            if current == goal:
+                break
+
+            for neighbor in UCS.get_pos_near(current):
+                if not is_valid(game_map, neighbor):
+                    continue
+
+                new_cost = cost_so_far[current] + 1  # Chi phí di chuyển mặc định là 1
+
+                if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                    cost_so_far[neighbor] = new_cost
+                    came_from[neighbor] = current
+                    heapq.heappush(open_set, (new_cost, neighbor))
+
+        # Nếu không tìm thấy đường đi, trả về danh sách chỉ chứa vị trí bắt đầu
+        if goal not in came_from:
+            return [start]
+
+        path = reconstruct_path(came_from, start, goal)
+        print("path", path)
+        print("nodes expanded", expanded_nodes)
+        return path, expanded_nodes
+
+    @staticmethod
+    def get_pos_near(pos):
+        x, y = pos
+        return [
+            (x + 1, y),  # phải
+            (x - 1, y),  # trái
+            (x, y + 1),  # xuống
+            (x, y - 1)   # lên
+        ]
