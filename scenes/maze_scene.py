@@ -25,6 +25,9 @@ class MazeScene(BaseScene):
         self.level_id = level_id
         self.level_config = LEVELS[level_id]
         
+        # Test case hiện tại
+        self.current_test_case = "test1"
+
         # Khởi tạo Pacman
         self.pacman = Pacman(2, 2, self.board.game_map) 
         
@@ -87,7 +90,6 @@ class MazeScene(BaseScene):
         self.blink_timer = 0
         self.show_text = True
         self.last_blink_time = time.time()
-        self.current_test_case = None
 
         # Tạo surface cho hiệu ứng mờ
         self.blur_surface = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
@@ -129,6 +131,13 @@ class MazeScene(BaseScene):
         for event in events:
             # Xử lý sự kiện cho PerformanceMonitor trước
             if self.performance_monitor.handle_events(event):
+                # Nếu popup được đóng, reset test case
+                print("current_test_case", self.current_test_case)
+                self.reset_test_case()
+                continue
+
+            # Nếu popup đang hiển thị, không xử lý các sự kiện khác
+            if self.performance_monitor.show_popup:
                 continue
 
             if event.type == pygame.QUIT:
@@ -161,6 +170,10 @@ class MazeScene(BaseScene):
 
     def update(self, dt):
         """Cập nhật trạng thái trong mê cung"""
+        # Nếu popup đang hiển thị, không cập nhật trạng thái
+        if self.performance_monitor.show_popup:
+            return
+
         if not self.game_started:
             # Cập nhật hiệu ứng nhấp nháy
             current_time = time.time()
@@ -258,3 +271,8 @@ class MazeScene(BaseScene):
     def quit_to_main_menu(self, data):
         self.scene_manager.switch_to("MainMenu")
         print("Đã thoát về Main Menu")
+
+    def reset_test_case(self):
+        """Reset test case hiện tại"""
+        if self.current_test_case:
+            self.set_test_case(self.current_test_case)

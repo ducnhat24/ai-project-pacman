@@ -16,14 +16,13 @@ class PerformanceMonitor:
         self.show_popup = False
         self.current_algorithm = None
 
-    def start_monitoring(self, algorithm_name=None):
+    def start_monitoring(self):
         """Bắt đầu theo dõi hiệu suất"""
         self.start_time = time.time()
         self.initial_memory = self.process.memory_info().rss / 1024  # Convert to KB
         self.is_monitoring = True
         self.expanded_nodes = 0
         self.show_popup = False
-        self.current_algorithm = algorithm_name
 
     def stop_monitoring(self, expanded_nodes=0):
         """Dừng theo dõi hiệu suất"""
@@ -75,7 +74,6 @@ class PerformanceMonitor:
         # Vẽ các thông số
         y_offset = 70
         metrics_text = [
-            f"Algorithm: {metrics['algorithm']}",
             f"Total Time: {metrics['total_time']:.2f} seconds",
             f"Expanded Nodes: {metrics['expanded_nodes']}",
             f"Memory Used: {metrics['memory_used']:.2f} KB"
