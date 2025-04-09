@@ -54,9 +54,10 @@ class Sounds:
         pygame.mixer.stop()
 
 class Color:
-  color_wall = (0, 255, 255)
-  color_power_food = (255, 0, 255)
-  color_food = (250, 218, 94)
-  color_bg = (20, 20, 40)
-  color_fence = (255, 0, 255)
-  color_text = 'white'
+    # Màu sắc cho các đối tượng trong game
+    color_food = (255, 255, 255)  # Màu trắng cho thức ăn thường
+    color_power_food = (255, 182, 193)  # Màu hồng nhạt cho thức ăn đặc biệt
+    color_wall = (0, 255, 255)  # Màu xanh dương cho tường
+    color_fence = (255, 0, 255)  # Màu vàng cho hàng rào
+    color_bg = (20, 20, 40)
+    color_text = 'white'

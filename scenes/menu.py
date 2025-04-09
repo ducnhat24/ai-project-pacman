@@ -99,18 +99,10 @@ class Menu(BaseScene):
     def start_level(self, level):
         """Bắt đầu level được chọn, chuyển sang MazeScene"""
         print(f"Chuyển sang Level {level}")
-        maze_scene = MazeScene(self.scene_manager, self.screen)
+        maze_scene = MazeScene(self.scene_manager, self.screen, level)
         self.scene_manager.add_scene(f"Level{level}", maze_scene)
         self.scene_manager.switch_to(f"Level{level}")
 
-
-
-    def update(self, dt):
-        """Cập nhật logic menu"""
-        for button in self.level_buttons:
-            button.update(None)  # Cập nhật không có sự kiện
-
-        self.quit_button.update(None)
 
     def render(self, screen):
         """Vẽ menu"""
