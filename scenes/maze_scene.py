@@ -92,11 +92,14 @@ class MazeScene(BaseScene):
         self.last_blink_time = time.time()
 
         # Tạo surface cho hiệu ứng mờ
-        self.blur_surface = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
+        self.blur_surface = pygame.Surface((self.screen_width, self.screen_height - self.button_height - 10), pygame.SRCALPHA)
         self.blur_surface.fill((0, 0, 0, 128))
 
     def set_test_case(self, test_case_name):
         """Cấu hình vị trí Ghost theo test case"""
+        # Đóng popup hiệu suất nếu đang mở
+        self.performance_monitor.close_popup()
+        
         if test_case_name in TEST_CASES:
             self.current_test_case = test_case_name
             test_case = TEST_CASES[test_case_name]
@@ -136,10 +139,6 @@ class MazeScene(BaseScene):
                 self.reset_test_case()
                 continue
 
-            # Nếu popup đang hiển thị, không xử lý các sự kiện khác
-            if self.performance_monitor.show_popup:
-                continue
-
             if event.type == pygame.QUIT:
                 self.handle_quit_event(event)
             # Bắt những sự kiện nhấn phím
@@ -170,9 +169,6 @@ class MazeScene(BaseScene):
 
     def update(self, dt):
         """Cập nhật trạng thái trong mê cung"""
-        # Nếu popup đang hiển thị, không cập nhật trạng thái
-        if self.performance_monitor.show_popup:
-            return
 
         if not self.game_started:
             # Cập nhật hiệu ứng nhấp nháy
@@ -220,13 +216,13 @@ class MazeScene(BaseScene):
 
         # Vẽ thông báo bắt đầu nếu game chưa bắt đầu
         if not self.game_started:
-            # Vẽ hiệu ứng mờ
+            # Vẽ hiệu ứng mờ (không bao gồm khu vực nút bấm)
             screen.blit(self.blur_surface, (0, 0))
 
             if self.show_text:
                 # Vẽ hướng dẫn bắt đầu
                 start_text = self.start_message_font.render("Press SPACE to start", True, (255, 255, 255))
-                start_rect = start_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2 ))
+                start_rect = start_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
                 screen.blit(start_text, start_rect)
 
         # Vẽ popup hiệu suất nếu cần
