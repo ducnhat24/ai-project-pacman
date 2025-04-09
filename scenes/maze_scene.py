@@ -105,7 +105,6 @@ class MazeScene(BaseScene):
             self.show_text = True
             self.last_blink_time = time.time()
 
-
             # Reset vị trí Pacman về vị trí ban đầu
             self.pacman = Pacman(2, 2, self.board.game_map)
             
@@ -134,13 +133,17 @@ class MazeScene(BaseScene):
 
             if event.type == pygame.QUIT:
                 self.handle_quit_event(event)
+            # Bắt những sự kiện nhấn phím
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not self.game_started:
                     self.game_started = True
-                    self.performance_monitor.start_monitoring()  # Bắt đầu theo dõi
-                    Sounds().play_sound("start")
-                elif event.key == pygame.K_r and self.game_started:  # Reset về test case đầu tiên
-                    self.set_test_case("test1")
+                    # Cho ghost tính toán đường đi
+                    for ghost in self.ghosts:
+                        ghost.move(self.pacman.x, self.pacman.y)
+
+                    # Bắt đầu đo thông số
+                    self.performance_monitor.start_monitoring()
+
                 # Xử lý di chuyển Pacman trong level 6
                 elif self.game_started and self.level_id == 6:
                     if event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -166,17 +169,21 @@ class MazeScene(BaseScene):
                 self.last_blink_time = current_time
 
         if self.game_started:
-            # Cập nhật di chuyển của các Ghost
-            pacman_x, pacman_y = self.pacman.x, self.pacman.y
-            for ghost in self.ghosts:
-                # Truyền performance_monitor vào thuật toán tìm đường
-                ghost.move(pacman_x, pacman_y, self.performance_monitor)
-                ghost.follow_path()
-
+            # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
+            if self.level_id == 6:
+                pacman_x, pacman_y = self.pacman.x, self.pacman.y
+                for ghost in self.ghosts:
+                    ghost.move(pacman_x, pacman_y)
+                    ghost.follow_path()
+            # Nếu không phải level 6 thì cho ghost tính toán đường đi 1 lần
+            else:
+                for ghost in self.ghosts:
+                    ghost.follow_path()
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 if ghost.x == self.pacman.x and ghost.y == self.pacman.y:
-                    self.performance_monitor.stop_monitoring()  # Dừng theo dõi khi bị bắt
+                    expanded_nodes = ghost.expanded_nodes
+                    self.performance_monitor.stop_monitoring(expanded_nodes)
 
     def render(self, screen):
         """Vẽ mê cung"""

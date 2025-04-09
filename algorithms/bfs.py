@@ -1,21 +1,17 @@
 # In bfs.py
 from collections import deque
-from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
+from utils.pathfinding_utils import is_valid, reconstruct_path 
 
 class BFS:
     @staticmethod
-    # Hàm này yêu cầu trả về đường đi từ vị trí bắt đầu đến vị trí đích
-    # theo dạng danh sách các tọa độ (x, y)
-    # lưu ý là tọa độ bắt đầu và đích đều là tuple (x, y)
-    # giá trị trả về là một danh sách chứa các tọa độ (x, y) từ vị trí bắt đầu đến vị trí đích (nhưng không lấy vị trí bắt đầu)
-    def find_path(game_map, start, goal, performance_monitor=None):
+    def find_path(game_map, start, goal):
         queue = deque([start])
         came_from = {start: None}
-        expanded_nodes = 0  # Biến đếm số node đã mở rộng
+        expanded_nodes = 0 
 
         while queue:
             current = queue.popleft()
-            expanded_nodes += 1  # Tăng số node đã mở rộng
+            expanded_nodes += 1
             
             if current == goal:
                 break
@@ -27,13 +23,14 @@ class BFS:
                     queue.append(next_pos)
                     came_from[next_pos] = current
         
-        # Cập nhật số node đã mở rộng vào performance_monitor nếu có
-        if performance_monitor:
-            performance_monitor.increment_expanded_nodes(expanded_nodes)
         
-        # Check if goal was reached
+       # Nếu không tìm được đường đi đến goal, trả về danh sách chỉ chứa start
         if goal not in came_from:
-            # No path found - return a path containing just the start position
-            return [start]
+            return [start], expanded_nodes
         
-        return reconstruct_path(came_from, start, goal)
+        # Dựng lại đường đi từ start đến goal
+        path = reconstruct_path(came_from, start, goal)
+        
+        print("path", path)
+        print("nodes expanded", expanded_nodes)
+        return path, expanded_nodes

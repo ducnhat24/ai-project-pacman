@@ -19,13 +19,15 @@ class Ghost(Entity):
         }
         self.current_image = self.images["FACE"]  # Hình ảnh mặc định khi đứng yên
         self.path = []
+        self.expanded_nodes = 0
+
         self.initial_position = (x, y)  # Lưu lại vị trí ban đầu của Ghost
         self.maze_drawing = MazeDrawing(self.game_map)
         self.direction = "FACE"  # Hướng di chuyển mặc định
 
-    def move(self, pacman_x, pacman_y, performance_monitor=None):
+    def move(self, pacman_x, pacman_y):
         """ Gọi PathFinding để tìm đường cho từng ghost """
-        self.path = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type, performance_monitor)
+        self.path, self.expanded_nodes = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type)
 
     def follow_path(self):
         """ Di chuyển theo đường tìm được """

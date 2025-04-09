@@ -14,7 +14,7 @@ class PerformanceMonitor:
         self.is_monitoring = False
         self.font = pygame.font.Font(None, 28)
         self.show_popup = False
-        self.current_algorithm = None  # Thêm biến lưu thuật toán hiện tại
+        self.current_algorithm = None
 
     def start_monitoring(self, algorithm_name=None):
         """Bắt đầu theo dõi hiệu suất"""
@@ -23,20 +23,16 @@ class PerformanceMonitor:
         self.is_monitoring = True
         self.expanded_nodes = 0
         self.show_popup = False
-        self.current_algorithm = algorithm_name  # Lưu tên thuật toán
+        self.current_algorithm = algorithm_name
 
-    def stop_monitoring(self):
+    def stop_monitoring(self, expanded_nodes=0):
         """Dừng theo dõi hiệu suất"""
         if self.is_monitoring:
             self.end_time = time.time()
             self.current_memory = self.process.memory_info().rss / 1024  # Convert to KB
             self.is_monitoring = False
             self.show_popup = True
-
-    def increment_expanded_nodes(self, count=1):
-        """Tăng số lượng node đã mở rộng"""
-        if self.is_monitoring:
-            self.expanded_nodes += count
+            self.expanded_nodes = expanded_nodes
 
     def get_metrics(self):
         """Lấy các thông số hiệu suất"""
@@ -50,7 +46,7 @@ class PerformanceMonitor:
             "total_time": total_time,
             "expanded_nodes": self.expanded_nodes,
             "memory_used": memory_used,
-            "algorithm": self.current_algorithm  # Thêm thông tin về thuật toán
+            "algorithm": self.current_algorithm
         }
 
     def draw_popup(self, screen):
