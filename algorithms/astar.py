@@ -17,7 +17,7 @@ class AStar:
     # start: tọa độ bắt đầu (x, y)
     # goal: tọa độ đích (x, y) 
 
-    def find_path(game_map, start, goal, performance_monitor=None):
+    def find_path(game_map, start, goal):
         open_set = []
         heapq.heappush(open_set, (0, start))
         
@@ -50,16 +50,14 @@ class AStar:
                     f_score[neighbor] = cost_g_score + AStar.heuristic(neighbor, goal)
                     heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-        # Cập nhật số node đã mở rộng vào performance_monitor nếu có
-        if performance_monitor:
-            performance_monitor.increment_expanded_nodes(expanded_nodes)
-
         # Nếu không tìm thấy đường đi
         if goal not in came_from:
             return [start]
 
-
-        return reconstruct_path(came_from, start, goal)
+        path = reconstruct_path(came_from, start, goal)
+        print("path", path)
+        print("nodes expanded", expanded_nodes)
+        return path, expanded_nodes
     @staticmethod
     def heuristic(start, goal):
         # Sử dụng khoảng cách Manhattan
