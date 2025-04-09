@@ -100,3 +100,7 @@ class PerformanceMonitor:
             self.show_popup = False
             return True
         return False 
+
+    def close_popup(self):
+        self.show_popup = False
+
