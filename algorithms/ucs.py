@@ -19,3 +19,4 @@ class UCS:
 
     def find_path(game_map, start, goal):
         print("UCS algorithm is not implemented yet.")
+        return [], 0

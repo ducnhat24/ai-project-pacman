@@ -25,6 +25,9 @@ class MazeScene(BaseScene):
         self.level_id = level_id
         self.level_config = LEVELS[level_id]
         
+        # Test case hiện tại
+        self.current_test_case = "test1"
+
         # Khởi tạo Pacman
         self.pacman = Pacman(2, 2, self.board.game_map) 
         
@@ -87,7 +90,6 @@ class MazeScene(BaseScene):
         self.blink_timer = 0
         self.show_text = True
         self.last_blink_time = time.time()
-        self.current_test_case = None
 
         # Tạo surface cho hiệu ứng mờ
         self.blur_surface = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
@@ -104,7 +106,6 @@ class MazeScene(BaseScene):
             self.game_started = False
             self.show_text = True
             self.last_blink_time = time.time()
-
 
             # Reset vị trí Pacman về vị trí ban đầu
             self.pacman = Pacman(2, 2, self.board.game_map)
@@ -130,17 +131,28 @@ class MazeScene(BaseScene):
         for event in events:
             # Xử lý sự kiện cho PerformanceMonitor trước
             if self.performance_monitor.handle_events(event):
+                # Nếu popup được đóng, reset test case
+                print("current_test_case", self.current_test_case)
+                self.reset_test_case()
+                continue
+
+            # Nếu popup đang hiển thị, không xử lý các sự kiện khác
+            if self.performance_monitor.show_popup:
                 continue
 
             if event.type == pygame.QUIT:
                 self.handle_quit_event(event)
+            # Bắt những sự kiện nhấn phím
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not self.game_started:
                     self.game_started = True
-                    self.performance_monitor.start_monitoring()  # Bắt đầu theo dõi
-                    Sounds().play_sound("start")
-                elif event.key == pygame.K_r and self.game_started:  # Reset về test case đầu tiên
-                    self.set_test_case("test1")
+                    # Cho ghost tính toán đường đi
+                    for ghost in self.ghosts:
+                        ghost.move(self.pacman.x, self.pacman.y)
+
+                    # Bắt đầu đo thông số
+                    self.performance_monitor.start_monitoring()
+
                 # Xử lý di chuyển Pacman trong level 6
                 elif self.game_started and self.level_id == 6:
                     if event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -158,6 +170,10 @@ class MazeScene(BaseScene):
 
     def update(self, dt):
         """Cập nhật trạng thái trong mê cung"""
+        # Nếu popup đang hiển thị, không cập nhật trạng thái
+        if self.performance_monitor.show_popup:
+            return
+
         if not self.game_started:
             # Cập nhật hiệu ứng nhấp nháy
             current_time = time.time()
@@ -166,17 +182,21 @@ class MazeScene(BaseScene):
                 self.last_blink_time = current_time
 
         if self.game_started:
-            # Cập nhật di chuyển của các Ghost
-            pacman_x, pacman_y = self.pacman.x, self.pacman.y
-            for ghost in self.ghosts:
-                # Truyền performance_monitor vào thuật toán tìm đường
-                ghost.move(pacman_x, pacman_y, self.performance_monitor)
-                ghost.follow_path()
-
+            # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
+            if self.level_id == 6:
+                pacman_x, pacman_y = self.pacman.x, self.pacman.y
+                for ghost in self.ghosts:
+                    ghost.move(pacman_x, pacman_y)
+                    ghost.follow_path()
+            # Nếu không phải level 6 thì cho ghost tính toán đường đi 1 lần
+            else:
+                for ghost in self.ghosts:
+                    ghost.follow_path()
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 if ghost.x == self.pacman.x and ghost.y == self.pacman.y:
-                    self.performance_monitor.stop_monitoring()  # Dừng theo dõi khi bị bắt
+                    expanded_nodes = ghost.expanded_nodes
+                    self.performance_monitor.stop_monitoring(expanded_nodes)
 
     def render(self, screen):
         """Vẽ mê cung"""
@@ -251,3 +271,8 @@ class MazeScene(BaseScene):
     def quit_to_main_menu(self, data):
         self.scene_manager.switch_to("MainMenu")
         print("Đã thoát về Main Menu")
+
+    def reset_test_case(self):
+        """Reset test case hiện tại"""
+        if self.current_test_case:
+            self.set_test_case(self.current_test_case)

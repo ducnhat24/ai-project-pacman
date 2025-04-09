@@ -7,15 +7,15 @@ from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pa
 
 class PathFinding:
     @staticmethod
-    def find_path(game_map, start, goal, ghost_type, performance_monitor=None):
+    def find_path(game_map, start, goal, ghost_type):
         """ Chọn thuật toán tùy theo loại Ghost """
         if ghost_type == "A*":
-            return AStar.find_path(game_map, start, goal, performance_monitor)
+            return AStar.find_path(game_map, start, goal)
         elif ghost_type == "DFS":
-            return DFS.find_path(game_map, start, goal, performance_monitor)
+            return DFS.find_path(game_map, start, goal)
         elif ghost_type == "BFS":
-            return BFS.find_path(game_map, start, goal, performance_monitor)
+            return BFS.find_path(game_map, start, goal)
         elif ghost_type == "UCS":
-            return UCS.find_path(game_map, start, goal, performance_monitor)
+            return UCS.find_path(game_map, start, goal)
         else:
             raise ValueError("Unknown ghost type")
