@@ -145,10 +145,11 @@ class MazeScene(BaseScene):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not self.game_started:
                     self.game_started = True
+                    memory = 0
                     # Cho ghost tính toán đường đi
                     for ghost in self.ghosts:
-                        ghost.move(self.pacman.x, self.pacman.y)
-
+                        memory = ghost.move(self.pacman.x, self.pacman.y)
+                        self.performance_monitor.set_memory(memory)
                     # Bắt đầu đo thông số
                     self.performance_monitor.start_monitoring()
 

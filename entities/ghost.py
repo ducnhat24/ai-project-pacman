@@ -27,7 +27,9 @@ class Ghost(Entity):
 
     def move(self, pacman_x, pacman_y):
         """ Gọi PathFinding để tìm đường cho từng ghost """
-        self.path, self.expanded_nodes = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type)
+        self.path, self.expanded_nodes, memory = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type)
+        print("Memory: ", memory)
+        return memory
 
     def follow_path(self):
         """ Di chuyển theo đường tìm được """

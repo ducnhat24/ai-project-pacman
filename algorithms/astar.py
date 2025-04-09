@@ -1,4 +1,6 @@
 import heapq
+import tracemalloc
+import gc
 
 from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
 
@@ -18,6 +20,8 @@ class AStar:
     # goal: tọa độ đích (x, y) 
 
     def find_path(game_map, start, goal):
+        
+        
         open_set = []
         heapq.heappush(open_set, (0, start))
         
@@ -25,6 +29,7 @@ class AStar:
         g_score = {start: 0}
         f_score = {start: AStar.heuristic(start, goal)}
         
+        tracemalloc.start()
         expanded_nodes = 0
 
         while open_set:
@@ -57,7 +62,17 @@ class AStar:
         path = reconstruct_path(came_from, start, goal)
         print("path", path)
         print("nodes expanded", expanded_nodes)
-        return path, expanded_nodes
+
+        current, peak_memory = tracemalloc.get_traced_memory()
+        print("current ", current)
+        print("peak_memory ", peak_memory)
+        
+        peak_memory_kb = peak_memory / (1024)  
+        print('total ',  peak_memory_kb)
+        tracemalloc.stop()
+
+
+        return path, expanded_nodes, peak_memory_kb
     @staticmethod
     def heuristic(start, goal):
         # Sử dụng khoảng cách Manhattan
