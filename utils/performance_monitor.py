@@ -2,6 +2,7 @@ import time
 import psutil
 import pygame
 from settings import Config
+import tracemalloc
 
 class PerformanceMonitor:
     def __init__(self):
@@ -15,7 +16,11 @@ class PerformanceMonitor:
         self.font = pygame.font.Font(None, 28)
         self.show_popup = False
         self.current_algorithm = None
+        self.memory = 0
 
+    def set_memory(self, memory):
+        self.memory = memory
+        
     def start_monitoring(self):
         """Bắt đầu theo dõi hiệu suất"""
         self.start_time = time.time()
@@ -40,7 +45,7 @@ class PerformanceMonitor:
 
         total_time = self.end_time - self.start_time
         memory_used = self.current_memory - self.initial_memory
-
+        memory_used = self.memory
         return {
             "total_time": total_time,
             "expanded_nodes": self.expanded_nodes,

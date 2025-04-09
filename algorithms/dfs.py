@@ -1,9 +1,12 @@
 from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
 
+import tracemalloc
 
 class DFS:
     @staticmethod
     def find_path(game_map, start, goal):
+        tracemalloc.start() 
+
         stack = [start]                
         came_from = {start: None}      
         expanded_nodes = 0             
@@ -33,5 +36,12 @@ class DFS:
         
         print("path", path)
         print("nodes expanded", expanded_nodes)
-        return path, expanded_nodes
+        current, peak_memory = tracemalloc.get_traced_memory()
+        print("current ", current)
+        print("peak_memory ", peak_memory)
+        
+        peak_memory_kb = peak_memory / (1024)  
+        print('total ',  peak_memory_kb)
+        tracemalloc.stop()
+        return path, expanded_nodes, peak_memory_kb
     
