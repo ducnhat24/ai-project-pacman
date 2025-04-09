@@ -17,5 +17,60 @@ class AStar:
     # start: tọa độ bắt đầu (x, y)
     # goal: tọa độ đích (x, y) 
 
-    def find_path(game_map, start, goal):
-        print("A* algorithm is not implemented yet.")
+    def find_path(game_map, start, goal, performance_monitor=None):
+        open_set = []
+        heapq.heappush(open_set, (0, start))
+        
+        came_from = {start: None}
+        g_score = {start: 0}
+        f_score = {start: AStar.heuristic(start, goal)}
+        
+        expanded_nodes = 0
+
+        while open_set:
+            # Lấy phần tử có f_score nhỏ nhất
+            #print("List node: ", open_set)
+
+            _, current = heapq.heappop(open_set)
+            expanded_nodes += 1
+
+            if current == goal:
+                break
+
+            for neighbor in AStar.get_pos_near(current):
+                if not is_valid(game_map, neighbor):
+                    continue
+
+                #print("List node: ", g_score)
+                cost_g_score = g_score[current] + 1  # Chi phí di chuyển mặc định là 1
+
+                if neighbor not in g_score or cost_g_score < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = cost_g_score
+                    f_score[neighbor] = cost_g_score + AStar.heuristic(neighbor, goal)
+                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
+
+        # Cập nhật số node đã mở rộng vào performance_monitor nếu có
+        if performance_monitor:
+            performance_monitor.increment_expanded_nodes(expanded_nodes)
+
+        # Nếu không tìm thấy đường đi
+        if goal not in came_from:
+            return [start]
+
+
+        return reconstruct_path(came_from, start, goal)
+    @staticmethod
+    def heuristic(start, goal):
+        # Sử dụng khoảng cách Manhattan
+        return abs(start[0] - goal[0]) + abs(start[1] - goal[1])
+
+    @staticmethod
+    def get_pos_near(pos):
+        x, y = pos
+        return [
+            (x + 1, y),  # phải
+            (x - 1, y),  # trái
+            (x, y + 1),  # xuống
+            (x, y - 1)   # lên
+        ]
