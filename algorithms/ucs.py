@@ -1,4 +1,5 @@
 import heapq
+import tracemalloc
 
 from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
 
@@ -7,6 +8,8 @@ class UCS:
     # Hàm này trả về đường đi từ vị trí bắt đầu đến vị trí đích dưới dạng danh sách các tọa độ (x, y)
     # Lưu ý: trả về không bao gồm tọa độ bắt đầu.
     def find_path(game_map, start, goal):
+        tracemalloc.start()
+        
         open_set = []
         heapq.heappush(open_set, (0, start))
         
@@ -41,7 +44,15 @@ class UCS:
         path = reconstruct_path(came_from, start, goal)
         print("path", path)
         print("nodes expanded", expanded_nodes)
-        return path, expanded_nodes
+
+        current, peak_memory = tracemalloc.get_traced_memory()
+        print("current ", current)
+        print("peak_memory ", peak_memory)
+
+        peak_memory_kb = peak_memory / (1024)  
+        tracemalloc.stop()
+
+        return path, expanded_nodes, peak_memory_kb
 
     @staticmethod
     def get_pos_near(pos):

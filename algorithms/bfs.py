@@ -1,10 +1,14 @@
 # In bfs.py
 from collections import deque
+import tracemalloc
+
 from utils.pathfinding_utils import is_valid, reconstruct_path 
 
 class BFS:
     @staticmethod
     def find_path(game_map, start, goal):
+        tracemalloc.start()
+
         queue = deque([start])
         came_from = {start: None}
         expanded_nodes = 0 
@@ -33,4 +37,12 @@ class BFS:
         
         print("path", path)
         print("nodes expanded", expanded_nodes)
-        return path, expanded_nodes
+
+        current, peak_memory = tracemalloc.get_traced_memory()
+        print("current ", current)
+        print("peak_memory ", peak_memory)
+
+        peak_memory_kb = peak_memory / (1024)  
+        tracemalloc.stop()
+
+        return path, expanded_nodes, peak_memory_kb

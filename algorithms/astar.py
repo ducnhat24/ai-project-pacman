@@ -20,8 +20,8 @@ class AStar:
     # goal: tọa độ đích (x, y) 
 
     def find_path(game_map, start, goal):
-        
-        
+        tracemalloc.start()
+
         open_set = []
         heapq.heappush(open_set, (0, start))
         
@@ -29,7 +29,6 @@ class AStar:
         g_score = {start: 0}
         f_score = {start: AStar.heuristic(start, goal)}
         
-        tracemalloc.start()
         expanded_nodes = 0
 
         while open_set:
@@ -68,7 +67,6 @@ class AStar:
         print("peak_memory ", peak_memory)
         
         peak_memory_kb = peak_memory / (1024)  
-        print('total ',  peak_memory_kb)
         tracemalloc.stop()
 
 

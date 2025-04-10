@@ -1,6 +1,6 @@
-from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
-
 import tracemalloc
+
+from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
 
 class DFS:
     @staticmethod
@@ -33,15 +33,15 @@ class DFS:
         
         # Dựng lại đường đi từ start đến goal
         path = reconstruct_path(came_from, start, goal)
-        
         print("path", path)
         print("nodes expanded", expanded_nodes)
+
         current, peak_memory = tracemalloc.get_traced_memory()
         print("current ", current)
         print("peak_memory ", peak_memory)
         
         peak_memory_kb = peak_memory / (1024)  
-        print('total ',  peak_memory_kb)
         tracemalloc.stop()
+
         return path, expanded_nodes, peak_memory_kb
     
