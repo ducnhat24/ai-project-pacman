@@ -9,6 +9,7 @@ class UCS:
     def find_path(game_map, start, goal):
         path = []           # Danh sách các bước di chuyển (không bao gồm start)
         expanded_nodes = 0  # Số lượng các red node đã được duyệt
+        memory = 0          # Memory usage
 
         # Lưu ý: Ta làm việc với một bản sao của danh sách red_nodes để không thay đổi dữ liệu gốc trong BoardInfo.
         red_nodes = list(BoardInfo.red_nodes)
@@ -46,7 +47,7 @@ class UCS:
 
         print("path:", path)
         print("nodes expanded:", expanded_nodes)
-        return path, expanded_nodes
+        return path, expanded_nodes, memory
 
     @staticmethod
     def get_pos_near(pos):
