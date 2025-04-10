@@ -1,19 +1,15 @@
 import heapq
-from utils.pathfinding_utils import is_valid  # Giữ lại nếu cần kiểm tra vị trí hợp lệ
-from board_info import BoardInfo  # Import class BoardInfo và truy cập đến danh sách red_nodes
+from utils.pathfinding_utils import is_valid  
+from board_info import BoardInfo 
 
 class UCS:
     @staticmethod
     # Hàm trả về đường đi từ vị trí bắt đầu đến vị trí đích dưới dạng danh sách các tọa độ (x, y)
     # Lưu ý: đường đi không bao gồm vị trí bắt đầu.
     def find_path(game_map, start, goal):
-        path = []           # Danh sách các bước di chuyển (không bao gồm start)
-        expanded_nodes = 0  # Số lượng các red node đã được duyệt
-
-        # Lưu ý: Ta làm việc với một bản sao của danh sách red_nodes để không thay đổi dữ liệu gốc trong BoardInfo.
+        path = []           
+        expanded_nodes = 0  
         red_nodes = list(BoardInfo.red_nodes)
-
-        # Nếu goal không nằm trong red_nodes thì có thể thêm vào danh sách này để đảm bảo luôn có thể nhận diện mục tiêu.
         if goal not in red_nodes:
             red_nodes.append(goal)
 
