@@ -16,8 +16,16 @@ class NewUCS:
         
         # Track expanded nodes with their costs
         expanded_nodes = {}
-        expanded_nodes_count = 0
+        expanded_red_nodes_count = 0
         
+        if start in red_nodes:
+            red_nodes_with_length = {
+                (start): 0
+            }
+        else:
+            red_nodes_with_length = {}
+
+        total_expanded_nodes = 0
         # Priority queue: (cost_so_far, node, path_to_node)
         heap = [(0, start, [])]
         
@@ -34,11 +42,13 @@ class NewUCS:
             
             # Count node expansion for red nodes only
             if current in red_nodes:
-                expanded_nodes_count += 1
+                expanded_red_nodes_count += 1
+                total_expanded_nodes += red_nodes_with_length[current]
                 
             # Check goal
             if current == goal:
                 path = current_path
+                
                 break
                 
             # Explore in four directions
@@ -63,6 +73,7 @@ class NewUCS:
                         if next_pos not in expanded_nodes:
                             new_path = current_path + path_segment
                             heapq.heappush(heap, (new_cost, next_pos, new_path))
+                            red_nodes_with_length[next_pos] = len(path_segment)  # Store path length for this red node
                         break
         
         # In case we didn't find a path
@@ -70,8 +81,8 @@ class NewUCS:
             path = []
         
         print("path:", path)
-        print("nodes expanded:", expanded_nodes_count)
-        
+        print("nodes expanded:", expanded_red_nodes_count)
+        print("total nodes passed:", total_expanded_nodes)
         # Get memory usage statistics
         current, peak_memory = tracemalloc.get_traced_memory()
         print("current:", current)
@@ -80,4 +91,4 @@ class NewUCS:
         peak_memory_kb = peak_memory / 1024
         tracemalloc.stop()
         
-        return path, expanded_nodes_count, peak_memory_kb
+        return path, total_expanded_nodes, peak_memory_kb
