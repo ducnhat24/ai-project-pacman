@@ -21,7 +21,7 @@ class DFS:
             x, y = current
 
             # Duyệt 4 hướng: trên, dưới, trái, phải
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
                 next_pos = (x + dx, y + dy)
                 if next_pos not in came_from and is_valid(game_map, next_pos):
                     stack.append(next_pos)

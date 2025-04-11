@@ -1,5 +1,6 @@
 import heapq
 import math
+import tracemalloc
 from utils.pathfinding_utils import is_valid  
 from board_info import BoardInfo 
 
@@ -8,9 +9,12 @@ class UCS:
     # Hàm trả về đường đi từ vị trí bắt đầu đến vị trí đích dưới dạng danh sách các tọa độ (x, y)
     # Lưu ý: đường đi không bao gồm vị trí bắt đầu.
     def find_path(game_map, start, goal):
+        # Bắt đầu theo dõi bộ nhớ
+        tracemalloc.start()
+        
         path = []           # Danh sách các bước di chuyển (không bao gồm start)
         expanded_nodes_count = 0  
-        memory = 0         
+        
         red_nodes = list(BoardInfo.red_nodes)
         if goal not in red_nodes:
             red_nodes.append(goal)
@@ -20,7 +24,6 @@ class UCS:
         # Priority queue (min-heap): mỗi phần tử là (priority, node, path_to_node, cost_so_far)
         # Lưu ý: cost_so_far là tổng chi phí đã đi đến node đó
         heap = [(0, start, [], 0)]
-        memory = max(memory, len(heap))
         
         while heap:
             priority, current, current_path, cost_so_far = heapq.heappop(heap)
@@ -55,16 +58,28 @@ class UCS:
                 # Nếu neighbor chưa được mở rộng hoặc tìm được chi phí nhỏ hơn thì thêm vào heap
                 if neighbor not in expanded_cost or new_cost < expanded_cost.get(neighbor, float('inf')):
                     heapq.heappush(heap, (new_priority, neighbor, current_path + [neighbor], new_cost))
-                    memory = max(memory, len(heap))
+        
+        # Lấy thông tin bộ nhớ
+        current, peak_memory = tracemalloc.get_traced_memory()
         print("path:", path)
         print("nodes expanded:", expanded_nodes_count)
-        return path, expanded_nodes_count, memory
+        print("current memory:", current)
+        print("peak memory:", peak_memory)
+        
+        # Chuyển đổi peak_memory sang KB
+        peak_memory_kb = peak_memory / 1024
+        
+        # Dừng theo dõi bộ nhớ
+        tracemalloc.stop()
+        
+        return path, expanded_nodes_count, peak_memory_kb
+        
     @staticmethod
     def get_pos_near(pos):
         x, y = pos
         return [
-            (x + 1, y),  # Phải
+            (x, y - 1),  # Trên
+            (x, y + 1),   # Dưới
             (x - 1, y),  # Trái
-            (x, y + 1),  # Xuống
-            (x, y - 1)   # Lên
+            (x + 1, y)  # Phải         
         ]
