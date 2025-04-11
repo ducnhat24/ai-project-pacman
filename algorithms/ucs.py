@@ -1,4 +1,5 @@
 import heapq
+import tracemalloc
 from utils.pathfinding_utils import is_valid  # Giữ lại nếu cần kiểm tra vị trí hợp lệ
 from board_info import BoardInfo  # Import class BoardInfo và truy cập đến danh sách red_nodes
 
@@ -9,7 +10,7 @@ class UCS:
     def find_path(game_map, start, goal):
         path = []           # Danh sách các bước di chuyển (không bao gồm start)
         expanded_nodes = 0  # Số lượng các red node đã được duyệt
-        memory = 0          # Memory usage
+        tracemalloc.start() 
 
         # Lưu ý: Ta làm việc với một bản sao của danh sách red_nodes để không thay đổi dữ liệu gốc trong BoardInfo.
         red_nodes = list(BoardInfo.red_nodes)
@@ -47,7 +48,15 @@ class UCS:
 
         print("path:", path)
         print("nodes expanded:", expanded_nodes)
-        return path, expanded_nodes, memory
+        
+        current, peak_memory = tracemalloc.get_traced_memory()
+        print("current ", current)
+        print("peak_memory ", peak_memory)
+        
+        peak_memory_kb = peak_memory / (1024)  
+        tracemalloc.stop()
+
+        return path, expanded_nodes, peak_memory_kb
 
     @staticmethod
     def get_pos_near(pos):
