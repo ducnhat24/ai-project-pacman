@@ -4,6 +4,7 @@ import tracemalloc
 from utils.pathfinding_utils import is_valid  
 from board_info import BoardInfo 
 
+
 class UCS:
     @staticmethod
     # Hàm trả về đường đi từ vị trí bắt đầu đến vị trí đích dưới dạng danh sách các tọa độ (x, y)
@@ -15,6 +16,7 @@ class UCS:
         path = []           # Danh sách các bước di chuyển (không bao gồm start)
         expanded_nodes_count = 0  
         
+
         red_nodes = list(BoardInfo.red_nodes)
         if goal not in red_nodes:
             red_nodes.append(goal)
@@ -52,6 +54,7 @@ class UCS:
                 # Chi phí bước đi: khoảng cách Euclid giữa current và neighbor
                 step_cost = math.sqrt((current[0] - neighbor[0]) ** 2 + (current[1] - neighbor[1]) ** 2)
                 new_cost = cost_so_far + step_cost
+
 
                 # Với UCS thuần, ưu tiên chỉ dựa vào new_cost (không cộng thêm heuristic)
                 new_priority = new_cost

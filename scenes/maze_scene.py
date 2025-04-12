@@ -240,7 +240,7 @@ class MazeScene(BaseScene):
     def on_enter(self):
         """Được gọi khi vào scene maze"""
         # Phát nhạc nền
-        Sounds().play_music("menu")
+        Sounds().stop_music("menu")
         print("Đã vào Maze Scene")
 
     def on_exit(self):
