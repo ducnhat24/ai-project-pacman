@@ -19,6 +19,16 @@ class Pacman(Entity):
         self.current_image = self.images["RIGHT"]
         self.direction = "RIGHT"
         self.maze_drawing = MazeDrawing(self.game_map)  # Khởi tạo đối tượng MazeDrawing
+        self.current_dx = 0 # Hướng đi hiện tại của pacman dx
+        self.current_dy = 1 # Hướng đi hiện tại của pacman dy
+    
+    def continue_moving(self):
+        """Tiếp tục di chuyển nếu không gặp tường"""
+        new_x = self.x + self.current_dx
+        new_y = self.y + self.current_dy
+        if self.can_move(new_x, new_y):
+            self.move(self.current_dx, self.current_dy)
+
 
     def move(self, dx, dy):
         """ Di chuyển Pac-Man nếu không va vào tường """
@@ -27,6 +37,8 @@ class Pacman(Entity):
         if self.can_move(new_x, new_y):  # Kiểm tra va chạm
             self.x = new_x
             self.y = new_y
+            self.current_dx = dx  # Cập nhật hướng
+            self.current_dy = dy
             self.update_direction(dx, dy)
             self.update_image()  # Cập nhật hình ảnh theo hướng di chuyển
 

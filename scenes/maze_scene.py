@@ -145,7 +145,7 @@ class MazeScene(BaseScene):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not self.game_started:
                     self.game_started = True
-                    memory = 0
+                    memory = 0  
                     # Cho ghost tính toán đường đi
                     for ghost in self.ghosts:
                         memory = ghost.move(self.pacman.x, self.pacman.y)
@@ -154,6 +154,16 @@ class MazeScene(BaseScene):
                     self.performance_monitor.start_monitoring()
 
                 # Xử lý di chuyển Pacman trong level 6
+                # elif self.game_started and self.level_id == 6:
+                #     if event.key == pygame.K_UP or event.key == pygame.K_w:
+                #         self.pacman.move(-1, 0)
+                #     elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                #         self.pacman.move(1, 0)
+                #     elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                #         self.pacman.move(0, -1)
+                #     elif event.key == pygame.K_RIGHT:
+                #         self.pacman.move(0, 1)
+
                 elif self.game_started and self.level_id == 6:
                     if event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.pacman.move(-1, 0)
@@ -161,8 +171,9 @@ class MazeScene(BaseScene):
                         self.pacman.move(1, 0)
                     elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         self.pacman.move(0, -1)
-                    elif event.key == pygame.K_RIGHT:
+                    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.pacman.move(0, 1)
+
             # Xử lý các nút bấm
             for button in self.buttons:
                 button.update(event)
@@ -182,6 +193,7 @@ class MazeScene(BaseScene):
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
                 pacman_x, pacman_y = self.pacman.x, self.pacman.y
+                self.pacman.continue_moving()
                 for ghost in self.ghosts:
                     ghost.move(pacman_x, pacman_y)
                     ghost.follow_path()
