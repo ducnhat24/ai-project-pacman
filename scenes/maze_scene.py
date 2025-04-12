@@ -95,6 +95,8 @@ class MazeScene(BaseScene):
         self.blur_surface = pygame.Surface((self.screen_width, self.screen_height - self.button_height - 10), pygame.SRCALPHA)
         self.blur_surface.fill((0, 0, 0, 128))
 
+        self.last_pacman_move_time = pygame.time.get_ticks()
+
     def set_test_case(self, test_case_name):
         """Cấu hình vị trí Ghost theo test case"""
         # Đóng popup hiệu suất nếu đang mở
@@ -153,27 +155,15 @@ class MazeScene(BaseScene):
                     # Bắt đầu đo thông số
                     self.performance_monitor.start_monitoring()
 
-                # Xử lý di chuyển Pacman trong level 6
-                # elif self.game_started and self.level_id == 6:
-                #     if event.key == pygame.K_UP or event.key == pygame.K_w:
-                #         self.pacman.move(-1, 0)
-                #     elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                #         self.pacman.move(1, 0)
-                #     elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                #         self.pacman.move(0, -1)
-                #     elif event.key == pygame.K_RIGHT:
-                #         self.pacman.move(0, 1)
-
                 elif self.game_started and self.level_id == 6:
                     if event.key == pygame.K_UP or event.key == pygame.K_w:
-                        self.pacman.move(-1, 0)
+                        self.pacman.set_next_direction(-1, 0)
                     elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                        self.pacman.move(1, 0)
+                        self.pacman.set_next_direction(1, 0)
                     elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                        self.pacman.move(0, -1)
+                        self.pacman.set_next_direction(0, -1)
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                        self.pacman.move(0, 1)
-
+                        self.pacman.set_next_direction(0, 1)
             # Xử lý các nút bấm
             for button in self.buttons:
                 button.update(event)
@@ -192,8 +182,13 @@ class MazeScene(BaseScene):
         if self.game_started:
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
+                current_time = pygame.time.get_ticks()
+                if current_time - self.last_pacman_move_time > self.pacman.move_delay:
+                    self.pacman.update()
+                    self.last_pacman_move_time = current_time
+
+
                 pacman_x, pacman_y = self.pacman.x, self.pacman.y
-                self.pacman.continue_moving()
                 for ghost in self.ghosts:
                     ghost.move(pacman_x, pacman_y)
                     ghost.follow_path()
