@@ -2,6 +2,7 @@
 import pygame
 from entities.entity import Entity
 from maze_drawing import MazeDrawing
+from settings import Config
 
 class Pacman(Entity):
     def __init__(self, x, y, game_map):
@@ -32,13 +33,13 @@ class Pacman(Entity):
     def update_direction(self, dx, dy):
         """ Cập nhật hướng di chuyển """
         if dx == -1:
-            self.direction = "LEFT"
-        elif dx == 1:
-            self.direction = "RIGHT"
-        elif dy == -1:
             self.direction = "UP"
-        elif dy == 1:
+        elif dx == 1:
             self.direction = "DOWN"
+        elif dy == -1:
+            self.direction = "LEFT"
+        elif dy == 1:
+            self.direction = "RIGHT"
 
     def update_image(self):
         """ Cập nhật hình ảnh của Pacman theo hướng di chuyển """
@@ -56,10 +57,13 @@ class Pacman(Entity):
         offset_x = self.maze_drawing.offset_x
         offset_y = self.maze_drawing.offset_y
 
-        scaled_image = pygame.transform.scale(self.current_image, (tile_size, tile_size))
+        tile_width = Config.TILE_WIDTH
+        tile_height = Config.TILE_HEIGHT
+
+        scaled_image = pygame.transform.scale(self.current_image, (tile_height, tile_width))
         
-        draw_x = self.x * tile_size + offset_x  
-        draw_y = self.y * tile_size + offset_y  
+        draw_x = self.y * tile_size + offset_x
+        draw_y = self.x * tile_size + offset_y
         
         # Render Pacman on the screen at the correct position
         screen.blit(scaled_image, (draw_x, draw_y))

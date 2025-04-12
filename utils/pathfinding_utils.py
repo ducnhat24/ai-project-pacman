@@ -4,7 +4,6 @@ def reconstruct_path(came_from, start, goal):
     path = []
     current = goal
 
-    
     # Handle the case where no path exists
     if goal not in came_from:
         return [start]  # Return just the start position

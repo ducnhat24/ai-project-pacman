@@ -46,10 +46,10 @@ LEVELS = {
     6: {
         "name": "Custom Level",
         "ghosts": [
-            {"type": "BFS", "color": "blue", "pos": (13, 22)},
-            {"type": "DFS", "color": "pink", "pos": (13, 23)},
-            {"type": "UCS", "color": "orange", "pos": (13, 24)},
-            {"type": "A*", "color": "red", "pos": (13, 25)}
+            # {"type": "BFS", "color": "blue", "pos": (13, 22)},
+            # {"type": "DFS", "color": "pink", "pos": (13, 23)},
+            # {"type": "UCS", "color": "orange", "pos": (13, 24)},
+            # {"type": "A*", "color": "red", "pos": (13, 25)}
         ],
         "show_test_buttons": False,
         "description": "Pacman di chuyển tự do"
