@@ -96,6 +96,8 @@ class MazeScene(BaseScene):
         self.blur_surface.fill((0, 0, 0, 128))
 
         self.last_pacman_move_time = pygame.time.get_ticks()
+        self.last_ghost_path_time = 0
+        self.ghost_path_delay = 2000  # mỗi 300ms mới cho ghost tính toán lại đường đi
 
     def set_test_case(self, test_case_name):
         """Cấu hình vị trí Ghost theo test case"""
@@ -183,14 +185,16 @@ class MazeScene(BaseScene):
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
                 current_time = pygame.time.get_ticks()
-                if current_time - self.last_pacman_move_time > self.pacman.move_delay:
-                    self.pacman.update()
-                    self.last_pacman_move_time = current_time
+                # if current_time - self.last_pacman_move_time > self.pacman.move_delay:
+                self.pacman.update()
+                    # self.last_pacman_move_time = current_time
 
-
-                pacman_x, pacman_y = self.pacman.x, self.pacman.y
+                if current_time - self.last_ghost_path_time > self.ghost_path_delay:
+                    pacman_x, pacman_y = self.pacman.x, self.pacman.y
+                    for ghost in self.ghosts:
+                        ghost.move(pacman_x, pacman_y)
+                    self.last_ghost_path_time = current_time
                 for ghost in self.ghosts:
-                    ghost.move(pacman_x, pacman_y)
                     ghost.follow_path()
             # Nếu không phải level 6 thì cho ghost tính toán đường đi 1 lần
             else:
