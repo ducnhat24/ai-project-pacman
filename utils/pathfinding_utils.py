@@ -4,7 +4,6 @@ def reconstruct_path(came_from, start, goal):
     path = []
     current = goal
 
-    
     # Handle the case where no path exists
     if goal not in came_from:
         return [start]  # Return just the start position
@@ -19,4 +18,4 @@ def reconstruct_path(came_from, start, goal):
 
 def is_valid(game_map, pos):
     x, y = pos
-    return 0 <= x < len(game_map[0]) and 0 <= y < len(game_map) and game_map[y][x] in [0, 1, 2]
+    return 0 <= x < len(game_map[0]) and 0 <= y < len(game_map) and game_map[y][x] in [0, 1, 2, 9]

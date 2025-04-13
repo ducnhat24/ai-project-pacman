@@ -30,9 +30,9 @@ class BFS:
                     came_from[next_pos] = current
         
         
-       # Nếu không tìm được đường đi đến goal, trả về danh sách chỉ chứa start
-        if goal not in came_from:
-            return [start], expanded_nodes
+    #    # Nếu không tìm được đường đi đến goal, trả về danh sách chỉ chứa start
+    #     if goal not in came_from:
+    #         return [start], expanded_nodes
         
         # Dựng lại đường đi từ start đến goal
         path = reconstruct_path(came_from, start, goal)

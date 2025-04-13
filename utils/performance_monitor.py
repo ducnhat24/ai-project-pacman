@@ -81,7 +81,7 @@ class PerformanceMonitor:
         metrics_text = [
             f"Total Time: {metrics['total_time']:.2f} seconds",
             f"Expanded Nodes: {metrics['expanded_nodes']}",
-            f"Memory Used: {metrics['memory_used']:.2f} KB"
+            # f"Memory Used: {metrics['memory_used']:.2f} KB"
         ]
 
         for text in metrics_text:
