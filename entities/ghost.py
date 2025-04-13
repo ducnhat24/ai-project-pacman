@@ -5,9 +5,10 @@ from maze_drawing import MazeDrawing
 from utils.pathfinding import PathFinding
 
 class Ghost(Entity):
-    def __init__(self, x, y, game_map, ghost_type, color):
+    def __init__(self, x, y, game_map, ghost_type, color, level_id = 1):
         # Gọi constructor của Entity
         super().__init__(x, y, game_map)
+        self.level_id = level_id  # ID của level hiện tại
         
         self.ghost_type = ghost_type
         self.color = color
@@ -25,24 +26,19 @@ class Ghost(Entity):
         self.maze_drawing = MazeDrawing(self.game_map)
         self.direction = "FACE"  # Hướng di chuyển mặc định
         self.steps_since_last_path_update = 0
-        self.path_update_interval = 3  # Cập nhật lại sau mỗi 3 bước
+        self.path_update_interval = 5  # Cập nhật lại sau mỗi 3 bước
+        self.total_expanded_nodes = 0
+
 
     def move(self, pacman_x, pacman_y):
         """ Gọi PathFinding để tìm đường cho từng ghost """
+        # self.path, self.expanded_nodes, memory = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type)
         self.path, self.expanded_nodes, memory = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type)
+        self.total_expanded_nodes += self.expanded_nodes
         print("Memory: ", memory)
         return memory
 
-    # def follow_path(self):
-    #     """ Di chuyển theo đường tìm được """
-    #     if self.path:
-    #         next_pos = self.path.pop(0)
-    #         new_x, new_y = next_pos
-    #         self.update_image()  # Cập nhật hình ảnh của Ghost theo hướng di chuyển
-    #         self.update_direction(new_x, new_y)  # Cập nhật hướng di chuyển ngay sau khi di chuyển
-    #         self.x, self.y = new_x, new_y
 
-    #         sleep(0)  # Thời gian nghỉ giữa các bước di chuyển
 
     def follow_path(self, pacman_x, pacman_y):
         """ Di chuyển theo đường tìm được và tự cập nhật lại đường đi nếu cần """
@@ -55,13 +51,24 @@ class Ghost(Entity):
 
             self.steps_since_last_path_update += 1
 
-            # Nếu đã đi một số bước nhất định thì cập nhật lại đường đi
-            if self.steps_since_last_path_update >= self.path_update_interval:
+            # Nếu đã đi một số bước nhất định thì cập nhật lại đường đi (ở level 6)
+            if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval:
                 self.move(pacman_x, pacman_y)
                 self.steps_since_last_path_update = 0
         else:
             # Nếu không còn đường thì tìm đường mới
             self.move(pacman_x, pacman_y)
+
+                # def follow_path(self):
+    #     """ Di chuyển theo đường tìm được """
+    #     if self.path:
+    #         next_pos = self.path.pop(0)
+    #         new_x, new_y = next_pos
+    #         self.update_image()  # Cập nhật hình ảnh của Ghost theo hướng di chuyển
+    #         self.update_direction(new_x, new_y)  # Cập nhật hướng di chuyển ngay sau khi di chuyển
+    #         self.x, self.y = new_x, new_y
+
+    #         sleep(0)  # Thời gian nghỉ giữa các bước di chuyển
 
     def update_direction(self, new_x, new_y):
         """ Cập nhật hướng di chuyển của Ghost """
