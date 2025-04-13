@@ -40,7 +40,7 @@ class MazeScene(BaseScene):
             ghost_type = ghost_config["type"]
             ghost_color = ghost_config["color"]
             ghost_pos = ghost_config["pos"]
-            ghost = Ghost(ghost_pos[0], ghost_pos[1], self.board.game_map, ghost_type, ghost_color, level_id=self.level_id)
+            ghost = Ghost(ghost_pos[0], ghost_pos[1], self.board.game_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, level_id=self.level_id)
             self.ghosts.append(ghost)
         
         # Kích thước nút bấm
@@ -125,7 +125,7 @@ class MazeScene(BaseScene):
             for ghost_config in self.level_config["ghosts"]:
                 ghost_type = ghost_config["type"]
                 ghost_color = ghost_config["color"]
-                ghost = Ghost(x, y, self.board.game_map, ghost_type, ghost_color, level_id=self.level_id)
+                ghost = Ghost(x, y, self.board.game_map, ghost_type, ghost_color, self.pacman.x, self.pacman.y, level_id=self.level_id)
                 self.ghosts.append(ghost)
             
             # Phát âm thanh khi thay đổi test case
@@ -189,6 +189,8 @@ class MazeScene(BaseScene):
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
                 self.pacman.update()
+
+
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 ghost.follow_path(self.pacman.y, self.pacman.x)

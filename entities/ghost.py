@@ -8,7 +8,7 @@ import threading
 
 
 class Ghost(Entity):
-    def __init__(self, x, y, game_map, ghost_type, color, level_id = 1):
+    def __init__(self, x, y, game_map, ghost_type, color, target_pacman_x, target_pacman_y, level_id = 1):
         # Gọi constructor của Entity
         super().__init__(x, y, game_map)
         self.level_id = level_id  # ID của level hiện tại
@@ -32,8 +32,11 @@ class Ghost(Entity):
         self.maze_drawing = MazeDrawing(self.game_map)
         self.direction = "FACE"  # Hướng di chuyển mặc định
         self.steps_since_last_path_update = 0
-        self.path_update_interval = 10  # Cập nhật lại sau mỗi path_update_interval bước
+        self.path_update_interval = 40  # Cập nhật lại sau mỗi path_update_interval bước
         self.total_expanded_nodes = 0
+
+        self.target_pacman_x = target_pacman_x
+        self.target_pacman_y = target_pacman_y
 
 
 
@@ -73,7 +76,7 @@ class Ghost(Entity):
 
             self.steps_since_last_path_update += 1
 
-            if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval:
+            if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval and self.target_pacman_x != pacman_x and self.target_pacman_y != pacman_y:
                 self.move(pacman_x, pacman_y)
                 self.steps_since_last_path_update = 0
         else:
