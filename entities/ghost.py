@@ -24,6 +24,8 @@ class Ghost(Entity):
         self.initial_position = (x, y)  # Lưu lại vị trí ban đầu của Ghost
         self.maze_drawing = MazeDrawing(self.game_map)
         self.direction = "FACE"  # Hướng di chuyển mặc định
+        self.steps_since_last_path_update = 0
+        self.path_update_interval = 3  # Cập nhật lại sau mỗi 3 bước
 
     def move(self, pacman_x, pacman_y):
         """ Gọi PathFinding để tìm đường cho từng ghost """
@@ -31,16 +33,35 @@ class Ghost(Entity):
         print("Memory: ", memory)
         return memory
 
-    def follow_path(self):
-        """ Di chuyển theo đường tìm được """
+    # def follow_path(self):
+    #     """ Di chuyển theo đường tìm được """
+    #     if self.path:
+    #         next_pos = self.path.pop(0)
+    #         new_x, new_y = next_pos
+    #         self.update_image()  # Cập nhật hình ảnh của Ghost theo hướng di chuyển
+    #         self.update_direction(new_x, new_y)  # Cập nhật hướng di chuyển ngay sau khi di chuyển
+    #         self.x, self.y = new_x, new_y
+
+    #         sleep(0)  # Thời gian nghỉ giữa các bước di chuyển
+
+    def follow_path(self, pacman_x, pacman_y):
+        """ Di chuyển theo đường tìm được và tự cập nhật lại đường đi nếu cần """
         if self.path:
             next_pos = self.path.pop(0)
             new_x, new_y = next_pos
-            self.update_image()  # Cập nhật hình ảnh của Ghost theo hướng di chuyển
-            self.update_direction(new_x, new_y)  # Cập nhật hướng di chuyển ngay sau khi di chuyển
+            self.update_direction(new_x, new_y)
             self.x, self.y = new_x, new_y
+            self.update_image()
 
-            sleep(0)  # Thời gian nghỉ giữa các bước di chuyển
+            self.steps_since_last_path_update += 1
+
+            # Nếu đã đi một số bước nhất định thì cập nhật lại đường đi
+            if self.steps_since_last_path_update >= self.path_update_interval:
+                self.move(pacman_x, pacman_y)
+                self.steps_since_last_path_update = 0
+        else:
+            # Nếu không còn đường thì tìm đường mới
+            self.move(pacman_x, pacman_y)
 
     def update_direction(self, new_x, new_y):
         """ Cập nhật hướng di chuyển của Ghost """

@@ -29,7 +29,7 @@ class MazeScene(BaseScene):
         self.current_test_case = "test1"
 
         # Khởi tạo Pacman
-        self.pacman = Pacman(2, 2, self.board.game_map) 
+        self.pacman = Pacman(3, 2, self.board.game_map) 
         
         # Khởi tạo PerformanceMonitor
         self.performance_monitor = PerformanceMonitor()
@@ -98,6 +98,8 @@ class MazeScene(BaseScene):
         self.last_pacman_move_time = pygame.time.get_ticks()
         self.last_ghost_path_time = 0
         self.ghost_path_delay = 2000  # mỗi 300ms mới cho ghost tính toán lại đường đi
+        self.game_over = False
+
 
     def set_test_case(self, test_case_name):
         """Cấu hình vị trí Ghost theo test case"""
@@ -115,7 +117,7 @@ class MazeScene(BaseScene):
             self.last_blink_time = time.time()
 
             # Reset vị trí Pacman về vị trí ban đầu
-            self.pacman = Pacman(2, 2, self.board.game_map)
+            self.pacman = Pacman(3, 2, self.board.game_map)
             
             # Tạo lại danh sách Ghosts với vị trí mới
             self.ghosts = []
@@ -149,10 +151,11 @@ class MazeScene(BaseScene):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not self.game_started:
                     self.game_started = True
+                    self.game_over = False
                     memory = 0  
                     # Cho ghost tính toán đường đi
                     for ghost in self.ghosts:
-                        memory = ghost.move(self.pacman.x, self.pacman.y)
+                        memory = ghost.move(self.pacman.y, self.pacman.x)
                         self.performance_monitor.set_memory(memory)
                     # Bắt đầu đo thông số
                     self.performance_monitor.start_monitoring()
@@ -181,7 +184,7 @@ class MazeScene(BaseScene):
                 self.show_text = not self.show_text
                 self.last_blink_time = current_time
 
-        if self.game_started:
+        if self.game_started and not self.game_over:
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
                 current_time = pygame.time.get_ticks()
@@ -189,20 +192,25 @@ class MazeScene(BaseScene):
                 self.pacman.update()
                     # self.last_pacman_move_time = current_time
 
-                if current_time - self.last_ghost_path_time > self.ghost_path_delay:
-                    pacman_x, pacman_y = self.pacman.x, self.pacman.y
-                    for ghost in self.ghosts:
-                        ghost.move(pacman_x, pacman_y)
-                    self.last_ghost_path_time = current_time
+                # if current_time - self.last_ghost_path_time > self.ghost_path_delay:
+                #     pacman_x, pacman_y = self.pacman.x, self.pacman.y
+
+                #     # Tính toán đường đi cho từng ghost
+                #     for ghost in self.ghosts:
+                #          if not ghost.path or ghost.path[-1] != (pacman_y, pacman_x):
+                #             # Chỉ cho ghost tính toán đường đi nếu không ở cùng vị trí với Pacman
+                #             ghost.move(pacman_y, pacman_x)
+                #     self.last_ghost_path_time = current_time
                 for ghost in self.ghosts:
-                    ghost.follow_path()
+                    ghost.follow_path(self.pacman.y, self.pacman.x)
             # Nếu không phải level 6 thì cho ghost tính toán đường đi 1 lần
             else:
                 for ghost in self.ghosts:
-                    ghost.follow_path()
+                    ghost.follow_path(self.pacman.y, self.pacman.x)
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
-                if ghost.x == self.pacman.x and ghost.y == self.pacman.y:
+                if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
+                    self.game_over = True
                     expanded_nodes = ghost.expanded_nodes
                     self.performance_monitor.stop_monitoring(expanded_nodes)
 
