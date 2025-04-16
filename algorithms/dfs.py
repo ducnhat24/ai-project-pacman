@@ -23,10 +23,6 @@ class DFS:
                 if neighbor not in came_from and is_valid(game_map, neighbor):
                     stack.append(neighbor)
                     came_from[neighbor] = current
-
-        # Nếu không tìm được đường đi đến goal, trả về danh sách chỉ chứa start
-        if goal not in came_from:
-            return [start], expanded_nodes
         
         # Dựng lại đường đi từ start đến goal
         path = reconstruct_path(came_from, start, goal)
@@ -49,6 +45,6 @@ class DFS:
             (x, y - 1),  # Trên
             (x, y + 1),  # Dưới
             (x - 1, y),  # Trái
-            (x + 1, y)  # Phải         
+            (x + 1, y)   # Phải         
         ]
     
