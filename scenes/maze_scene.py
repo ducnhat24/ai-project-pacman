@@ -1,3 +1,4 @@
+from copy import deepcopy
 import sys
 import pygame
 import time
@@ -318,6 +319,8 @@ class MazeScene(BaseScene):
         """Được gọi khi rời scene menu"""
         # Dừng nhạc nền
         Sounds().stop_music("menu")
+        board = BoardInfo()
+        MazeDrawing._shared_map = deepcopy(board.initMaze)  # Lấy ma trận cho level
         print("Đã rời Main Menu")
 
     # Các hàm callback cho các nút
