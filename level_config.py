@@ -46,8 +46,8 @@ LEVELS = {
     6: {
         "name": "Custom Level",
         "ghosts": [
-            # {"type": "BFS", "color": "blue", "pos": (42, 15)},
-            # {"type": "DFS", "color": "pink", "pos": (43, 15)},
+            {"type": "BFS", "color": "blue", "pos": (42, 15)},
+            {"type": "DFS", "color": "pink", "pos": (43, 15)},
             # {"type": "UCS", "color": "orange", "pos": (42, 16)},
             # {"type": "A*", "color": "red", "pos": (43, 16)}
         ],

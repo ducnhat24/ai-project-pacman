@@ -43,7 +43,7 @@ class MazeScene(BaseScene):
             ghost_type = ghost_config["type"]
             ghost_color = ghost_config["color"]
             ghost_pos = ghost_config["pos"]
-            ghost = Ghost(ghost_pos[0], ghost_pos[1], self.board.game_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, map=self.current_map, level_id=self.level_id)
+            ghost = Ghost(ghost_pos[0], ghost_pos[1], MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, level_id=self.level_id)
             # Gán id cho ghost
             ghost.id = i
             i += 1
@@ -243,7 +243,7 @@ class MazeScene(BaseScene):
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 # print(self.current_map)
-                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map)
+                ghost.follow_path(self.pacman.y, self.pacman.x, self.game_map)
                 if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
                     self.game_over = True
                     expanded_nodes = ghost.total_expanded_nodes
