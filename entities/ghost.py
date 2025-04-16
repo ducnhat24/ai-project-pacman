@@ -5,6 +5,7 @@ from entities.entity import Entity
 from maze_drawing import MazeDrawing
 from utils.pathfinding import PathFinding
 import threading
+import tracemalloc
 
 
 class Ghost(Entity):
@@ -13,6 +14,9 @@ class Ghost(Entity):
         super().__init__(x, y, game_map)
         self.level_id = level_id  # ID của level hiện tại
         
+        self.id = None
+        self.total_time = 0
+        self.memory = 0
         self.ghost_type = ghost_type
         self.color = color
         self.images = {
@@ -51,14 +55,22 @@ class Ghost(Entity):
 
 
     def async_find_path(self, target_y, target_x):
+        start_time = time.time()
         path, expanded_nodes, memory = PathFinding.find_path(
             self.game_map, (self.x, self.y), (target_x, target_y), self.ghost_type
         )
         # self.path = path
         # self.expanded_nodes += expanded_nodes
         # self.path_ready = True
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        print("total_time ", total_time)
+        print(self.ghost_type, " use memory ", memory)
 
         self.total_expanded_nodes += expanded_nodes
+        self.memory += memory
+        self.total_time += total_time
         self.path = path
         self.expanded_nodes = expanded_nodes  # Cập nhật expanded_nodes với giá trị của lần tìm đường hiện tại
         self.path_ready = True

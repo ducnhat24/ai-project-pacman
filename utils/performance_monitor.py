@@ -17,9 +17,31 @@ class PerformanceMonitor:
         self.show_popup = False
         self.current_algorithm = None
         self.memory = 0
+        self.total_time_algorithm = 0
+        self.total_time_move = 0
+
+    def init(self, algorithm):
+        self.current_algorithm = algorithm
+        self.total_time_algorithm = 0
+        self.total_time_move = 0
+        self.memory = 0
+        self.start_monitoring()
+
+    def set_expanded_nodes(self, expanded_nodes):
+        self.expanded_nodes = expanded_nodes
 
     def set_memory(self, memory):
         self.memory = memory
+
+
+    def set_time(self, time):
+        self.total_time_algorithm = time
+
+    def set_add_memory(self, memory):
+        self.memory = self.memory + memory
+
+    def set_add_time(self, time):
+        self.total_time_algorithm = self.total_time_algorithm + time
         
     def start_monitoring(self):
         """Bắt đầu theo dõi hiệu suất"""
@@ -43,28 +65,33 @@ class PerformanceMonitor:
         if not self.start_time or not self.end_time:
             return None
 
-        total_time = self.end_time - self.start_time
-        memory_used = self.current_memory - self.initial_memory
+        self.total_time_move = self.end_time - self.start_time
+        #memory_used = self.current_memory - self.initial_memory
         memory_used = self.memory
+        if memory_used is None:
+            memory_used = 0.0
         return {
-            "total_time": total_time,
+            "time_algorithm": self.total_time_algorithm,
+            "time_move": self.total_time_move,
             "expanded_nodes": self.expanded_nodes,
             "memory_used": memory_used,
             "algorithm": self.current_algorithm
         }
 
-    def draw_popup(self, screen):
+    def draw_popup(self, screen, position=1, check=False):
         """Vẽ popup hiển thị thông tin hiệu suất"""
         if not self.show_popup:
-            return
+            return False
 
         metrics = self.get_metrics()
         if not metrics:
-            return
+            return False
 
         # Tạo surface cho popup
         popup_width = 400
-        popup_height = 300
+        popup_height = 320
+        if check:
+            popup_height = 250
         popup_surface = pygame.Surface((popup_width, popup_height), pygame.SRCALPHA)
         popup_surface.fill((0, 0, 0, 200))  # Màu đen với độ trong suốt
 
@@ -78,11 +105,21 @@ class PerformanceMonitor:
 
         # Vẽ các thông số
         y_offset = 70
-        metrics_text = [
-            f"Total Time: {metrics['total_time']:.2f} seconds",
-            f"Expanded Nodes: {metrics['expanded_nodes']}",
-            # f"Memory Used: {metrics['memory_used']:.2f} KB"
-        ]
+        metrics_text = []
+        if (check):
+            metrics_text = [
+                f"Algorithm: {metrics['algorithm']}",
+                f"Time Algorithm: {metrics['time_algorithm']:.7f} seconds",
+                f"Expanded Nodes: {metrics['expanded_nodes']}",
+            ]
+        else:
+            metrics_text = [
+                f"Algorithm: {metrics['algorithm']}",
+                f"Time Algorithm: {metrics['time_algorithm']:.7f} seconds",
+                f"Expanded Nodes: {metrics['expanded_nodes']}",
+                f"Memory Used: {metrics['memory_used']:.2f} KB",
+                f"Total Time: {metrics['time_move']:.2f} seconds"
+            ]
 
         for text in metrics_text:
             text_surface = self.font.render(text, True, (255, 255, 255))
@@ -94,10 +131,25 @@ class PerformanceMonitor:
         instruction = self.font.render("Press X to close", True, (255, 255, 255))
         instruction_rect = instruction.get_rect(centerx=popup_width//2, y=popup_height - 40)
         popup_surface.blit(instruction, instruction_rect)
+       
+         # Xác định vị trí popup dựa vào `position`
+        screen_w, screen_h = Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT
 
-        # Vẽ popup lên màn hình
-        screen.blit(popup_surface, ((Config.SCREEN_WIDTH - popup_width) // 2, 
-                                  (Config.SCREEN_HEIGHT - popup_height) // 2))
+        if not check:
+            pos = ((screen_w - popup_width) // 2, (screen_h - popup_height) // 2 - 10)
+        elif position == 1:  # Top-left
+            pos = (220, 80)
+        elif position == 2:  # Top-right
+            pos = (screen_w - popup_width - 220, 80)
+        elif position == 3:  # Bottom-left
+            pos = (220, screen_h - popup_height - 100)
+        elif position == 4:  # Bottom-right
+            pos = (screen_w - popup_width - 220, screen_h - popup_height - 100)
+        
+
+        # Vẽ lên màn hình
+        screen.blit(popup_surface, pos)
+        return True
 
     def handle_events(self, event):
         """Xử lý sự kiện cho popup"""
