@@ -93,7 +93,11 @@ class UCS:
                 if result:
                     next_pos, path_segment, step_cost = result
                     new_cost = cost_so_far + step_cost
-                    
+
+                    # Nếu node kế tiếp có pacman_food, trừ thêm 0.1 chi phí để ưu tiên node này
+                    if next_pos in BoardInfo.pacman_food:
+                        new_cost -= 0.1  
+
                     # Nếu chưa mở rộng nút hoặc tìm được đường đi tốt hơn
                     if next_pos not in expanded_nodes or new_cost < expanded_nodes[next_pos]:
                         new_path = current_path + path_segment
@@ -115,3 +119,16 @@ class UCS:
         tracemalloc.stop()
         
         return path, total_expanded_nodes, peak_memory_kb
+
+
+
+
+
+
+
+
+
+
+
+
+
