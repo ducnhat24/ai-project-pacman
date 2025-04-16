@@ -1,8 +1,7 @@
 import heapq
-import math
+import tracemalloc
 from utils.pathfinding_utils import is_valid  
 from board_info import BoardInfo 
-
 
 class UCS:
     @staticmethod
@@ -45,20 +44,30 @@ class UCS:
 
     @staticmethod
     def find_path(game_map, start, goal):
-        path = []           # Danh sách các bước di chuyển (không bao gồm start)
-        expanded_nodes_count = 0  
-        memory = 0         
-        red_nodes = list(BoardInfo.red_nodes)
-        if goal not in red_nodes:
-            red_nodes.append(goal)
-
-        # Từ điển lưu lại các node đã mở rộng cùng với chi phí đường đi của chúng
-        expanded_cost = {}
-        # Priority queue (min-heap): mỗi phần tử là (priority, node, path_to_node, cost_so_far)
-        # Lưu ý: cost_so_far là tổng chi phí đã đi đến node đó
-        heap = [(0, start, [], 0)]
-        memory = max(memory, len(heap))
+        tracemalloc.start()
         
+        # Tiền xử lý: tạo tập các nút red và đảm bảo goal luôn có trong tập
+        red_nodes = set(BoardInfo.red_nodes)
+        if goal not in red_nodes:
+            red_nodes.add(goal)
+        
+        # Theo dõi các nút đã mở rộng (node: cost tối ưu đến nó)
+        expanded_nodes = {}
+        expanded_red_nodes_count = 0
+        
+        # Nếu start là nút red, lưu thêm thông tin về chiều dài đoạn đường đi
+        red_nodes_with_length = {start: 0} if start in red_nodes else {}
+        
+        total_expanded_nodes = 0
+        
+        # Khởi tạo biến path trước khi vào vòng lặp
+        path = []
+        # Hàng đợi ưu tiên: (chi phí đến nút, nút hiện tại, đường đi từ nút đầu)
+        heap = [(0, start, [])]
+        
+        # Các hướng di chuyển: lên, xuống, trái, phải
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+
         while heap:
             cost_so_far, current, current_path = heapq.heappop(heap)
             
@@ -77,31 +86,34 @@ class UCS:
             if current == goal:
                 path = current_path
                 break
-
-            # Duyệt các vị trí liền kề
-            for neighbor in UCS.get_pos_near(current):
-                if not is_valid(game_map, neighbor):
-                    continue
-
-                # Chi phí bước đi: khoảng cách Euclid giữa current và neighbor
-                step_cost = math.sqrt((current[0] - neighbor[0]) ** 2 + (current[1] - neighbor[1]) ** 2)
-                new_cost = cost_so_far + step_cost
-
-                # Với UCS thuần, ưu tiên chỉ dựa vào new_cost (không cộng thêm heuristic)
-                new_priority = new_cost
-                # Nếu neighbor chưa được mở rộng hoặc tìm được chi phí nhỏ hơn thì thêm vào heap
-                if neighbor not in expanded_cost or new_cost < expanded_cost.get(neighbor, float('inf')):
-                    heapq.heappush(heap, (new_priority, neighbor, current_path + [neighbor], new_cost))
-                    memory = max(memory, len(heap))
+                
+            # Duyệt theo 4 hướng
+            for dx, dy in directions:
+                result = UCS.traverse_direction(game_map, current, dx, dy, red_nodes)
+                if result:
+                    next_pos, path_segment, step_cost = result
+                    new_cost = cost_so_far + step_cost
+                    
+                    # Nếu chưa mở rộng nút hoặc tìm được đường đi tốt hơn
+                    if next_pos not in expanded_nodes or new_cost < expanded_nodes[next_pos]:
+                        new_path = current_path + path_segment
+                        heapq.heappush(heap, (new_cost, next_pos, new_path))
+                        # Cập nhật (hoặc khởi tạo) giá trị chiều dài đoạn đường từ current đến next_pos
+                        if next_pos not in red_nodes_with_length or len(path_segment) < red_nodes_with_length[next_pos]:
+                            red_nodes_with_length[next_pos] = len(path_segment)
+        
+        # Nếu không tìm thấy đường đi, path vẫn là []
         print("path:", path)
-        print("nodes expanded:", expanded_nodes_count)
-        return path, expanded_nodes_count, memory
-    @staticmethod
-    def get_pos_near(pos):
-        x, y = pos
-        return [
-            (x + 1, y),  # Phải
-            (x - 1, y),  # Trái
-            (x, y + 1),  # Xuống
-            (x, y - 1)   # Lên
-        ]
+        print("nodes expanded:", expanded_red_nodes_count)
+        print("total nodes passed:", total_expanded_nodes)
+        
+        current_mem, peak_memory = tracemalloc.get_traced_memory()
+        print("current:", current_mem)
+        print("peak_memory:", peak_memory)
+        
+        peak_memory_kb = peak_memory / 1024
+        tracemalloc.stop()
+        
+        return path, total_expanded_nodes, peak_memory_kb
+
+
