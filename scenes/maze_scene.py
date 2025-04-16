@@ -219,6 +219,8 @@ class MazeScene(BaseScene):
     def update(self, dt):
         """Cập nhật trạng thái trong mê cung"""
 
+        
+
         if not self.game_started:
             # Cập nhật hiệu ứng nhấp nháy
             current_time = time.time()
@@ -230,6 +232,11 @@ class MazeScene(BaseScene):
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
                 self.pacman.update()
+                if self.pacman._score == 558:
+                    # switch to win scene
+                    sleep_time = 0.2  # Thời gian chờ trước khi chuyển cảnh
+                    time.sleep(sleep_time)  # Chờ trong 2 giây
+                    self.scene_manager.switch_to("WinScene")
 
 
 
@@ -302,6 +309,11 @@ class MazeScene(BaseScene):
                 pygame.display.flip()
                 if status:
                     self.end = True
+
+            # Render text hiển thị số điểm của pacman
+            score_text = self.start_message_font.render(f"Score: {self.pacman._score}", True, (255, 255, 255))
+            score_rect = score_text.get_rect(center=(self.screen_width // 2, self.screen_height - 30))
+            screen.blit(score_text, score_rect)
 
     def handle_quit_event(self, event):
         """Xử lý sự kiện thoát game"""
