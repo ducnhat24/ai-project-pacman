@@ -61,3 +61,4 @@ class Color:
     color_fence = (255, 0, 255)  # Màu vàng cho hàng rào
     color_bg = (20, 20, 40)
     color_text = 'white'
+    red = (255, 0, 0)

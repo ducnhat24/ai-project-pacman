@@ -18,9 +18,9 @@ class MazeScene(BaseScene):
     """Scene hiển thị mê cung"""
     def __init__(self, scene_manager, screen, level_id=1):
         super().__init__(scene_manager, screen)
-        self.board = BoardInfo()        
         self.maze = MazeDrawing(screen)
-        self.current_map = self.board.game_map
+
+        self.game_map = MazeDrawing._shared_map
         
         # Lưu level hiện tại
         self.level_id = level_id
@@ -30,7 +30,7 @@ class MazeScene(BaseScene):
         self.current_test_case = "test1"
 
         # Khởi tạo Pacman
-        self.pacman = Pacman(3, 2, self.board.game_map) 
+        self.pacman = Pacman(3, 2, self.game_map) 
         
         # Khởi tạo PerformanceMonitor
         self.performance_monitors = {}
@@ -111,7 +111,6 @@ class MazeScene(BaseScene):
         self.ghost_path_delay = 2000  # mỗi 300ms mới cho ghost tính toán lại đường đi
         self.game_over = False
         self.expanded_nodes = []  # Danh sách lưu số lượng node đã mở rộng của từng ghost
-
 
     def set_test_case(self, test_case_name):
         """Cấu hình vị trí Ghost theo test case"""
@@ -208,6 +207,9 @@ class MazeScene(BaseScene):
                         self.pacman.set_next_direction(0, -1)
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.pacman.set_next_direction(0, 1)
+
+                    # print("current map:",self.current_map)
+
             # Xử lý các nút bấm
             for button in self.buttons:
                 button.update(event)
@@ -227,6 +229,7 @@ class MazeScene(BaseScene):
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
                 self.pacman.update()
+
 
 
             # Kiểm tra va chạm với Ghost
