@@ -17,6 +17,6 @@ class PathFinding:
         elif ghost_type == "BFS":
             return BFS.find_path(game_map, start, goal)
         elif ghost_type == "UCS":
-            return NewUCS.find_path(game_map, start, goal)
+            return UCS.find_path(game_map, start, goal)
         else:
             raise ValueError("Unknown ghost type")

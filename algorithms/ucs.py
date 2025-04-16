@@ -115,5 +115,3 @@ class UCS:
         tracemalloc.stop()
         
         return path, total_expanded_nodes, peak_memory_kb
-
-
