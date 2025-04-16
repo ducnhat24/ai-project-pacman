@@ -3,6 +3,7 @@ from algorithms.bfs import BFS
 from algorithms.dfs import DFS
 from algorithms.ucs import UCS
 from algorithms.astar import AStar
+from algorithms.new_ucs import NewUCS
 from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
 
 class PathFinding:
@@ -16,6 +17,6 @@ class PathFinding:
         elif ghost_type == "BFS":
             return BFS.find_path(game_map, start, goal)
         elif ghost_type == "UCS":
-            return UCS.find_path(game_map, start, goal)
+            return NewUCS.find_path(game_map, start, goal)
         else:
             raise ValueError("Unknown ghost type")
