@@ -2,14 +2,15 @@
 import pygame
 from entities.entity import Entity
 from maze_drawing import MazeDrawing
+from scene_manager import SceneManager
 from settings import Config
 
+
 class Pacman(Entity):
+    _score = 0  # Điểm số của pacman
     def __init__(self, x, y, game_map):
         # Gọi constructor của Entity
         super().__init__(x, y, game_map)
-
-        self.maze_drawing = MazeDrawing(self.game_map)  # Khởi tạo đối tượng MazeDrawing
         
         self.real_x = y * Config.TILE_WIDTH  # pixel, lưu ý y trước vì là cột
         self.real_y = x * Config.TILE_HEIGHT  # pixel
@@ -22,6 +23,7 @@ class Pacman(Entity):
         self.current_dx = 0 # Hướng đi hiện tại của pacman dx
         self.current_dy = 1 # Hướng đi hiện tại của pacman dy
         self.next_direction = (0, 0)  # Hướng tiếp theo được người chơi nhấn
+        self.scene_manager = SceneManager()
 
         def scale_image(image):
             return pygame.transform.scale(image, (Config.TILE_HEIGHT, Config.TILE_WIDTH)).convert_alpha()
@@ -75,11 +77,18 @@ class Pacman(Entity):
         if self.moving:
             elapsed = current_time - self.last_move_time
             self.move_progress = min(1.0, elapsed / self.move_duration)  # Tăng tiến độ di chuyển
-            if self.move_progress >= 1.0:
+            old_x, old_y = self.start_pos
+
+            if self.move_progress == 1.0:
                 self.moving = False
                 # self.move_progress = 0.0  # Reset tiến độ di chuyển
                 self.real_x = self.end_pos[1] * Config.TILE_WIDTH  # Cập nhật vị trí thực tế
                 self.real_y = self.end_pos[0] * Config.TILE_HEIGHT  # Cập nhật vị trí thực tế
+            
+            elif 0 < self.move_progress < 1 and self.game_map[old_x][old_y] == 1:
+                MazeDrawing._shared_map[old_x][old_y] = 0  # Đặt lại ô cũ thành tường
+                self._score += 1  # Tăng điểm số
+
         else:
             next_dx, next_dy = self.next_direction
             new_x = self.x + next_dx
@@ -126,8 +135,8 @@ class Pacman(Entity):
 
     def draw(self, screen, tile_size):
         """ Vẽ Pacman lên màn hình """
-        offset_x = self.maze_drawing.offset_x
-        offset_y = self.maze_drawing.offset_y
+        offset_x = MazeDrawing._offset_x
+        offset_y = MazeDrawing._offset_y
 
         tile_width = Config.TILE_WIDTH
         tile_height = Config.TILE_HEIGHT

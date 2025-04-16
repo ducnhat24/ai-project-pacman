@@ -8,11 +8,17 @@ from settings import Config, Color
 class MazeDrawing:
     TILE_WIDTH = Config.TILE_WIDTH
     TILE_HEIGHT = Config.TILE_HEIGHT
+    _shared_map = None  # singleton map
+    _offset_x = (Config.SCREEN_WIDTH - 60 * TILE_WIDTH) // 2
+    _offset_y = 10
+
 
     def __init__(self, screen):
-        self.board = BoardInfo()  # Khởi tạo BoardInfo
-        self.map = copy.deepcopy(self.board.game_map)  # Initialize the maze from Board
         self.screen = screen
+        self.board = BoardInfo()
+        if MazeDrawing._shared_map is None:
+            MazeDrawing._shared_map = copy.deepcopy(self.board.game_map)
+        self.map = MazeDrawing._shared_map
         
         # Define shadow color
         self.shadow_color = (50, 50, 50, 128)
@@ -31,7 +37,7 @@ class MazeDrawing:
         screen_width = Config.SCREEN_WIDTH
         screen_height = Config.SCREEN_HEIGHT
 
-        self.offset_x = (screen_width - total_map_width_px) // 2
+        self.offset_x = (Config.SCREEN_WIDTH - 60 * self.TILE_WIDTH) // 2
         self.offset_y = 10
 
     def draw_rounded_line(self, surface, color, start_pos, end_pos, width, shadow=False):

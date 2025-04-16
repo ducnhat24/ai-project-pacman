@@ -1,3 +1,4 @@
+from copy import deepcopy
 import sys
 import pygame
 import time
@@ -18,9 +19,9 @@ class MazeScene(BaseScene):
     """Scene hiển thị mê cung"""
     def __init__(self, scene_manager, screen, level_id=1):
         super().__init__(scene_manager, screen)
-        self.board = BoardInfo()        
         self.maze = MazeDrawing(screen)
-        self.current_map = self.board.game_map
+
+        self.game_map = MazeDrawing._shared_map
         
         # Lưu level hiện tại
         self.level_id = level_id
@@ -30,7 +31,7 @@ class MazeScene(BaseScene):
         self.current_test_case = "test1"
 
         # Khởi tạo Pacman
-        self.pacman = Pacman(3, 2, self.board.game_map) 
+        self.pacman = Pacman(3, 2, self.game_map) 
         
         # Khởi tạo PerformanceMonitor
         self.performance_monitors = {}
@@ -42,7 +43,7 @@ class MazeScene(BaseScene):
             ghost_type = ghost_config["type"]
             ghost_color = ghost_config["color"]
             ghost_pos = ghost_config["pos"]
-            ghost = Ghost(ghost_pos[0], ghost_pos[1], self.board.game_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, map=self.current_map, level_id=self.level_id)
+            ghost = Ghost(ghost_pos[0], ghost_pos[1], MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, level_id=self.level_id)
             # Gán id cho ghost
             ghost.id = i
             i += 1
@@ -111,7 +112,6 @@ class MazeScene(BaseScene):
         self.ghost_path_delay = 2000  # mỗi 300ms mới cho ghost tính toán lại đường đi
         self.game_over = False
         self.expanded_nodes = []  # Danh sách lưu số lượng node đã mở rộng của từng ghost
-
 
     def set_test_case(self, test_case_name):
         """Cấu hình vị trí Ghost theo test case"""
@@ -208,6 +208,9 @@ class MazeScene(BaseScene):
                         self.pacman.set_next_direction(0, -1)
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.pacman.set_next_direction(0, 1)
+
+                    # print("current map:",self.current_map)
+
             # Xử lý các nút bấm
             for button in self.buttons:
                 button.update(event)
@@ -215,6 +218,8 @@ class MazeScene(BaseScene):
 
     def update(self, dt):
         """Cập nhật trạng thái trong mê cung"""
+
+        
 
         if not self.game_started:
             # Cập nhật hiệu ứng nhấp nháy
@@ -227,12 +232,18 @@ class MazeScene(BaseScene):
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
                 self.pacman.update()
+                if self.pacman._score == 558:
+                    # switch to win scene
+                    sleep_time = 0.2  # Thời gian chờ trước khi chuyển cảnh
+                    time.sleep(sleep_time)  # Chờ trong 2 giây
+                    self.scene_manager.switch_to("WinScene")
+
 
 
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 # print(self.current_map)
-                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map)
+                ghost.follow_path(self.pacman.y, self.pacman.x, self.game_map)
                 if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
                     self.game_over = True
                     expanded_nodes = ghost.total_expanded_nodes
@@ -299,6 +310,11 @@ class MazeScene(BaseScene):
                 if status:
                     self.end = True
 
+            # Render text hiển thị số điểm của pacman
+            score_text = self.start_message_font.render(f"Score: {self.pacman._score}", True, (255, 255, 255))
+            score_rect = score_text.get_rect(center=(self.screen_width // 2, self.screen_height - 30))
+            screen.blit(score_text, score_rect)
+
     def handle_quit_event(self, event):
         """Xử lý sự kiện thoát game"""
         if event.type == pygame.QUIT:
@@ -315,6 +331,8 @@ class MazeScene(BaseScene):
         """Được gọi khi rời scene menu"""
         # Dừng nhạc nền
         Sounds().stop_music("menu")
+        board = BoardInfo()
+        MazeDrawing._shared_map = deepcopy(board.initMaze)  # Lấy ma trận cho level
         print("Đã rời Main Menu")
 
     # Các hàm callback cho các nút
