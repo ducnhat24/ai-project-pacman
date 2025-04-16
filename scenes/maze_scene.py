@@ -20,6 +20,7 @@ class MazeScene(BaseScene):
         super().__init__(scene_manager, screen)
         self.board = BoardInfo()        
         self.maze = MazeDrawing(screen)
+        self.current_map = self.board.game_map
         
         # Lưu level hiện tại
         self.level_id = level_id
@@ -41,7 +42,7 @@ class MazeScene(BaseScene):
             ghost_type = ghost_config["type"]
             ghost_color = ghost_config["color"]
             ghost_pos = ghost_config["pos"]
-            ghost = Ghost(ghost_pos[0], ghost_pos[1], self.board.game_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, level_id=self.level_id)
+            ghost = Ghost(ghost_pos[0], ghost_pos[1], self.board.game_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, map=self.current_map, level_id=self.level_id)
             # Gán id cho ghost
             ghost.id = i
             i += 1
@@ -120,6 +121,9 @@ class MazeScene(BaseScene):
                 monitor.close_popup()
         
         self.end = False
+
+        self.board = BoardInfo()
+        self.current_map = self.board.game_map
         
         if test_case_name in TEST_CASES:
             self.current_test_case = test_case_name
@@ -141,7 +145,11 @@ class MazeScene(BaseScene):
             for ghost_config in self.level_config["ghosts"]:
                 ghost_type = ghost_config["type"]
                 ghost_color = ghost_config["color"]
-                ghost = Ghost(x, y, self.board.game_map, ghost_type, ghost_color, self.pacman.x, self.pacman.y, level_id=self.level_id)
+                if self.level_id >= 5:
+                    ghost_pos = ghost_config["pos"]
+                    x = ghost_pos[0]
+                    y = ghost_pos[1]
+                ghost = Ghost(x, y, self.board.game_map, ghost_type, ghost_color, self.pacman.x, self.pacman.y, map=self.current_map, level_id=self.level_id)
                 # Gán id cho ghost
                 ghost.id = i
                 i += 1
@@ -223,7 +231,8 @@ class MazeScene(BaseScene):
 
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
-                ghost.follow_path(self.pacman.y, self.pacman.x)
+                # print(self.current_map)
+                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map)
                 if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
                     self.game_over = True
                     expanded_nodes = ghost.total_expanded_nodes

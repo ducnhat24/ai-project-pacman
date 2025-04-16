@@ -9,7 +9,7 @@ import tracemalloc
 
 
 class Ghost(Entity):
-    def __init__(self, x, y, game_map, ghost_type, color, target_pacman_x, target_pacman_y, level_id = 1):
+    def __init__(self, x, y, game_map, ghost_type, color, target_pacman_x, target_pacman_y, map, level_id = 1):
         # Gọi constructor của Entity
         super().__init__(x, y, game_map)
         self.level_id = level_id  # ID của level hiện tại
@@ -42,7 +42,8 @@ class Ghost(Entity):
         self.target_pacman_x = target_pacman_x
         self.target_pacman_y = target_pacman_y
 
-
+        # Đánh dấu ghost ở trên map
+        map[y][x] = 10
 
 
     def move(self, pacman_x, pacman_y):
@@ -77,20 +78,28 @@ class Ghost(Entity):
 
 
 
-    def follow_path(self, pacman_x, pacman_y): 
+    def follow_path(self, pacman_x, pacman_y, map): 
+        
+        # print(self.game_map)
         """ Di chuyển theo đường tìm được và tự cập nhật lại đường đi nếu cần """
         if self.path_ready and self.path:
-            next_pos = self.path.pop(0)
+            next_pos = self.path[0]
             new_x, new_y = next_pos
-            self.update_direction(new_x, new_y)
-            self.x, self.y = new_x, new_y
-            self.update_image()
+            if (map[new_y][new_x] != 10):
+                self.path.pop(0)
+                map[self.y][self.x] = 1
+                self.update_direction(new_x, new_y)
+                self.x, self.y = new_x, new_y
+                self.update_image()
+                map[self.y][self.x] = 10
 
-            self.steps_since_last_path_update += 1
+                self.steps_since_last_path_update += 1
 
-            if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval and self.target_pacman_x != pacman_x and self.target_pacman_y != pacman_y:
-                self.move(pacman_x, pacman_y)
-                self.steps_since_last_path_update = 0
+                if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval and self.target_pacman_x != pacman_x and self.target_pacman_y != pacman_y:
+                    self.move(pacman_x, pacman_y)
+                    self.steps_since_last_path_update = 0
+
+                # sleep(0.01)
         else:
             # Nếu chưa có đường hoặc path chưa sẵn sàng => bắt đầu tìm
             self.move(pacman_x, pacman_y)
