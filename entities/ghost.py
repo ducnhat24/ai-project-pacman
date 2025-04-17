@@ -41,7 +41,7 @@ class Ghost(Entity):
         self.target_pacman_y = target_pacman_y
 
         # Đánh dấu ghost ở trên map
-        game_map[y][x] = 10
+        # game_map[y][x] = 10
 
 
     def move(self, pacman_x, pacman_y):
@@ -83,7 +83,7 @@ class Ghost(Entity):
         if self.path_ready and self.path:
             next_pos = self.path[0]
             new_x, new_y = next_pos
-            if (game_map[new_y][new_x] != 10):
+            if (1):
                 self.path.pop(0)
                 game_map[self.y][self.x] = 1
                 self.update_direction(new_x, new_y)
