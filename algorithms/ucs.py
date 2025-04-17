@@ -5,17 +5,21 @@ from board_info import BoardInfo
 
 class UCS:
     @staticmethod
-    def calculate_cost(current, next_pos):
+    def calculate_cost(current, next_pos, dot_count=0):
         """
         Tính chi phí di chuyển từ nút current đến nút next_pos.
         Nếu tung độ (y) bằng nhau: trả về |hoành độ_current - hoành độ_next|.
         Nếu hoành độ (x) bằng nhau: trả về |tung độ_current - tung độ_next|.
         """
         if current[1] == next_pos[1]:
-            return abs(current[0] - next_pos[0])
+            base_cost = abs(current[0] - next_pos[0])
         elif current[0] == next_pos[0]:
-            return abs(current[1] - next_pos[1])
-        return 0
+            base_cost = abs(current[1] - next_pos[1])
+        else:
+            base_cost = 0 
+
+        bonus = dot_count * 0.5
+        return base_cost - bonus
 
     @staticmethod
     def traverse_direction(game_map, start, dx, dy, red_nodes):
@@ -25,21 +29,26 @@ class UCS:
         """
         current = start
         path_segment = []
+        dot_count = 0
+
         while True:
             # Tính vị trí tiếp theo theo hướng cho trước
             next_pos = (current[0] + dx, current[1] + dy)
             
             if not is_valid(game_map, next_pos):
-                # Nếu vị trí không hợp lệ thì dừng và trả về None
                 return None
             
             path_segment.append(next_pos)
-            # Cập nhật current cho lần duyệt tiếp theo
+            # Đếm số lượng thức ăn
+            x, y = next_pos
+            if game_map[y][x] == 1:
+                dot_count += 1
+                
             current = next_pos
             
             # Nếu gặp nút red, tính chi phí và trả về thông tin
             if next_pos in red_nodes:
-                cost = UCS.calculate_cost(start, next_pos)
+                cost = UCS.calculate_cost(start, next_pos, dot_count)
                 return next_pos, path_segment, cost
 
     @staticmethod
@@ -93,10 +102,6 @@ class UCS:
                 if result:
                     next_pos, path_segment, step_cost = result
                     new_cost = cost_so_far + step_cost
-
-                    # Nếu node kế tiếp có pacman_food, trừ thêm 0.1 chi phí để ưu tiên node này
-                    if next_pos in BoardInfo.pacman_food:
-                        new_cost -= 0.1  
 
                     # Nếu chưa mở rộng nút hoặc tìm được đường đi tốt hơn
                     if next_pos not in expanded_nodes or new_cost < expanded_nodes[next_pos]:
