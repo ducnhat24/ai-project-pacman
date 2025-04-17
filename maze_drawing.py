@@ -73,7 +73,7 @@ class MazeDrawing:
         # --- Vòng lặp vẽ từng ô, áp dụng offset ---
         for i in range(self.num_rows):
             for j in range(self.num_cols):
-                cell = self.map[i][j]
+                cell = MazeDrawing._shared_map[i][j]
 
                 # Tọa độ góc trên-trái của ô hiện tại (đã cộng offset)
                 draw_base_x = j * self.TILE_WIDTH + self.offset_x

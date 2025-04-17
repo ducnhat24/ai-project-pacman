@@ -9,11 +9,10 @@ import tracemalloc
 
 
 class Ghost(Entity):
-    def __init__(self, x, y, game_map, ghost_type, color, target_pacman_x, target_pacman_y, level_id = 1):
+    def __init__(self, x, y, game_map, ghost_type, color, target_pacman_x, target_pacman_y, map, level_id = 1):
         # Gọi constructor của Entity
         super().__init__(x, y, game_map)
         self.level_id = level_id  # ID của level hiện tại
-        
         self.id = None
         self.total_time = 0
         self.memory = 0
@@ -33,7 +32,6 @@ class Ghost(Entity):
         self.expanded_nodes = 0
 
         self.initial_position = (x, y)  # Lưu lại vị trí ban đầu của Ghost
-        self.maze_drawing = MazeDrawing(self.game_map)
         self.direction = "FACE"  # Hướng di chuyển mặc định
         self.steps_since_last_path_update = 0
         self.path_update_interval = 40  # Cập nhật lại sau mỗi path_update_interval bước
@@ -43,7 +41,7 @@ class Ghost(Entity):
         self.target_pacman_y = target_pacman_y
 
         # Đánh dấu ghost ở trên map
-        game_map[y][x] = 10
+        map[y][x] = 10
 
 
     def move(self, pacman_x, pacman_y):
@@ -78,20 +76,19 @@ class Ghost(Entity):
 
 
 
-    def follow_path(self, pacman_x, pacman_y, game_map): 
-        
-        # print(self.game_map)
+    def follow_path(self, pacman_x, pacman_y, map): 
+        # print(map)
         """ Di chuyển theo đường tìm được và tự cập nhật lại đường đi nếu cần """
         if self.path_ready and self.path:
             next_pos = self.path[0]
             new_x, new_y = next_pos
-            if (game_map[new_y][new_x] != 10):
+            if (map[new_y][new_x] != 10):
                 self.path.pop(0)
-                game_map[self.y][self.x] = 1
+                map[self.y][self.x] = 1
                 self.update_direction(new_x, new_y)
                 self.x, self.y = new_x, new_y
                 self.update_image()
-                game_map[self.y][self.x] = 10
+                map[self.y][self.x] = 10
 
                 self.steps_since_last_path_update += 1
 
@@ -103,63 +100,6 @@ class Ghost(Entity):
         else:
             # Nếu chưa có đường hoặc path chưa sẵn sàng => bắt đầu tìm
             self.move(pacman_x, pacman_y)
-
-    # def start_pathfinding(self, pacman_y, pacman_x):
-    #     if self.pathfinding_thread is None or not self.pathfinding_thread.is_alive():
-    #         self.path_ready = False
-    #         self.pathfinding_thread = threading.Thread(
-    #             target=self.async_find_path,
-    #             args=(pacman_y, pacman_x)
-    #         )
-    #         self.pathfinding_thread.start()
-
-        # def move(self, pacman_x, pacman_y):
-    #     """ Gọi PathFinding để tìm đường cho từng ghost """
-    #     time.sleep(0.1)  # Thời gian nghỉ giữa các bước di chuyển
-    #     # self.path, self.expanded_nodes, memory = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type)
-    #     self.path, self.expanded_nodes, memory = PathFinding.find_path(self.game_map, (self.x, self.y), (pacman_x, pacman_y), self.ghost_type)
-    #     self.total_expanded_nodes += self.expanded_nodes
-    #     print("Memory: ", memory)
-    #     return memory
-
-    # def follow_path(self, pacman_x, pacman_y):
-    #     """ Di chuyển theo đường tìm được và tự cập nhật lại đường đi nếu cần """
-    #     if self.path_ready and self.path:
-    #         next_pos = self.path.pop(0)
-    #         new_x, new_y = next_pos
-    #         self.update_direction(new_x, new_y)
-    #         self.x, self.y = new_x, new_y
-    #         self.update_image()
-
-    #         self.steps_since_last_path_update += 1
-
-    #         # Nếu đủ số bước thì tìm đường mới (bằng thread)
-    #         if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval:
-    #             self.start_pathfinding(pacman_y, pacman_x)
-    #             self.steps_since_last_path_update = 0
-
-    #     elif not self.path and not self.pathfinding_thread:
-    #         # Nếu hết đường và không đang tính đường → bắt đầu tìm đường mới
-    #         self.start_pathfinding(pacman_y, pacman_x)
-
-    # def follow_path(self, pacman_x, pacman_y):
-    #     """ Di chuyển theo đường tìm được và tự cập nhật lại đường đi nếu cần """
-    #     if self.path:
-    #         next_pos = self.path.pop(0)
-    #         new_x, new_y = next_pos
-    #         self.update_direction(new_x, new_y)
-    #         self.x, self.y = new_x, new_y
-    #         self.update_image()
-
-    #         self.steps_since_last_path_update += 1
-
-    #         # Nếu đã đi một số bước nhất định thì cập nhật lại đường đi (ở level 6)
-    #         if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval:
-    #             self.move(pacman_x, pacman_y)
-    #             self.steps_since_last_path_update = 0
-    #     else:
-    #         # Nếu không còn đường thì tìm đường mới
-    #         self.move(pacman_x, pacman_y)
 
     def update_direction(self, new_x, new_y):
         """ Cập nhật hướng di chuyển của Ghost """
@@ -189,8 +129,8 @@ class Ghost(Entity):
 
     def draw(self, screen, tile_size):
         """ Vẽ Ghost lên màn hình """
-        offset_x = self.maze_drawing.offset_x
-        offset_y = self.maze_drawing.offset_y
+        offset_x = MazeDrawing._offset_x
+        offset_y = MazeDrawing._offset_y
 
         scaled_image = pygame.transform.scale(self.current_image, (tile_size, tile_size))
         
