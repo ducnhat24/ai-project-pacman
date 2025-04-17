@@ -2,6 +2,7 @@ import pygame
 from scenes.menu import Menu
 from scene_manager import SceneManager
 from settings import Config
+from scenes.win_scene import WinScene
 
 class Game:
     """Lớp quản lý game chính"""
@@ -20,8 +21,13 @@ class Game:
         # Tạo scene main menu
         main_menu = Menu(self.scene_manager, self.screen)  # Truyền screen vào Men
         self.scene_manager.add_scene("MainMenu", main_menu)
+        
 
         self.scene_manager.switch_to("MainMenu")
+
+        win_scene = WinScene(self.scene_manager, self.screen)  # Tạo scene WinGame
+
+        self.scene_manager.add_scene("WinScene", win_scene)  # Thêm scene WinGame vào SceneManager
 
     def run(self):
         """Vòng lặp game chính"""

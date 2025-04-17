@@ -5,6 +5,7 @@ from entities.entity import Entity
 from maze_drawing import MazeDrawing
 from utils.pathfinding import PathFinding
 import threading
+import tracemalloc
 
 
 class Ghost(Entity):
@@ -13,6 +14,9 @@ class Ghost(Entity):
         super().__init__(x, y, game_map)
         self.level_id = level_id  # ID của level hiện tại
         
+        self.id = None
+        self.total_time = 0
+        self.memory = 0
         self.ghost_type = ghost_type
         self.color = color
         self.images = {
@@ -38,7 +42,8 @@ class Ghost(Entity):
         self.target_pacman_x = target_pacman_x
         self.target_pacman_y = target_pacman_y
 
-
+        # Đánh dấu ghost ở trên map
+        game_map[y][x] = 10
 
 
     def move(self, pacman_x, pacman_y):
@@ -51,34 +56,50 @@ class Ghost(Entity):
 
 
     def async_find_path(self, target_y, target_x):
+        start_time = time.time()
         path, expanded_nodes, memory = PathFinding.find_path(
             self.game_map, (self.x, self.y), (target_x, target_y), self.ghost_type
         )
         # self.path = path
         # self.expanded_nodes += expanded_nodes
         # self.path_ready = True
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        print("total_time ", total_time)
+        print(self.ghost_type, " use memory ", memory)
 
         self.total_expanded_nodes += expanded_nodes
+        self.memory += memory
+        self.total_time += total_time
         self.path = path
         self.expanded_nodes = expanded_nodes  # Cập nhật expanded_nodes với giá trị của lần tìm đường hiện tại
         self.path_ready = True
 
 
 
-    def follow_path(self, pacman_x, pacman_y): 
+    def follow_path(self, pacman_x, pacman_y, game_map): 
+        
+        # print(self.game_map)
         """ Di chuyển theo đường tìm được và tự cập nhật lại đường đi nếu cần """
         if self.path_ready and self.path:
-            next_pos = self.path.pop(0)
+            next_pos = self.path[0]
             new_x, new_y = next_pos
-            self.update_direction(new_x, new_y)
-            self.x, self.y = new_x, new_y
-            self.update_image()
+            if (game_map[new_y][new_x] != 10):
+                self.path.pop(0)
+                game_map[self.y][self.x] = 1
+                self.update_direction(new_x, new_y)
+                self.x, self.y = new_x, new_y
+                self.update_image()
+                game_map[self.y][self.x] = 10
 
-            self.steps_since_last_path_update += 1
+                self.steps_since_last_path_update += 1
 
-            if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval and self.target_pacman_x != pacman_x and self.target_pacman_y != pacman_y:
-                self.move(pacman_x, pacman_y)
-                self.steps_since_last_path_update = 0
+                if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval and self.target_pacman_x != pacman_x and self.target_pacman_y != pacman_y:
+                    self.move(pacman_x, pacman_y)
+                    self.steps_since_last_path_update = 0
+
+                # sleep(0.01)
         else:
             # Nếu chưa có đường hoặc path chưa sẵn sàng => bắt đầu tìm
             self.move(pacman_x, pacman_y)

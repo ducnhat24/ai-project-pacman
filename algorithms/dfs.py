@@ -17,18 +17,12 @@ class DFS:
 
             if current == goal:
                 break                
+        
             
-            x, y = current
-            
-            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
-                next_pos = (x + dx, y + dy)
-                if next_pos not in came_from and is_valid(game_map, next_pos):
-                    stack.append(next_pos)
-                    came_from[next_pos] = current
-
-        # Nếu không tìm được đường đi đến goal, trả về danh sách chỉ chứa start
-        if goal not in came_from:
-            return [start], expanded_nodes
+            for neighbor in DFS.get_neighbors(current):
+                if neighbor not in came_from and is_valid(game_map, neighbor):
+                    stack.append(neighbor)
+                    came_from[neighbor] = current
         
         # Dựng lại đường đi từ start đến goal
         path = reconstruct_path(came_from, start, goal)
@@ -36,11 +30,21 @@ class DFS:
         print("nodes expanded", expanded_nodes)
 
         current, peak_memory = tracemalloc.get_traced_memory()
-        print("current ", current)
-        print("peak_memory ", peak_memory)
-        
         peak_memory_kb = peak_memory / (1024)  
+        print("current ", current)
+        print("peak_memory_kb ", peak_memory_kb)
+        
         tracemalloc.stop()
 
         return path, expanded_nodes, peak_memory_kb
+    
+    @staticmethod
+    def get_neighbors(pos):
+        x, y = pos
+        return [
+            (x, y - 1),  # Trên
+            (x, y + 1),  # Dưới
+            (x - 1, y),  # Trái
+            (x + 1, y)   # Phải         
+        ]
     

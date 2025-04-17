@@ -34,3 +34,5 @@ class SceneManager:
         """Vẽ scene hiện tại"""
         if self.current_scene:
             self.current_scene.render(screen)
+
+    
