@@ -121,9 +121,11 @@ class MazeScene(BaseScene):
                 monitor.close_popup()
         
         self.end = False
+        
+        board = BoardInfo()
+        
+        MazeDrawing._shared_map = deepcopy(board.initMaze)  # Lấy ma trận cho level
 
-        self.board = BoardInfo()
-        self.current_map = self.board.game_map
         
         if test_case_name in TEST_CASES:
             self.current_test_case = test_case_name
@@ -136,7 +138,8 @@ class MazeScene(BaseScene):
             self.last_blink_time = time.time()
 
             # Reset vị trí Pacman về vị trí ban đầu
-            self.pacman = Pacman(3, 2, self.board.game_map)
+            self.pacman = Pacman(3, 2, MazeDrawing._shared_map)
+            MazeDrawing._shared_map[self.pacman.x][self.pacman.y] = 0  # Đặt lại ô cũ thành tường
             
             # Tạo lại danh sách Ghosts với vị trí mới
             self.ghosts = []
@@ -149,7 +152,9 @@ class MazeScene(BaseScene):
                     ghost_pos = ghost_config["pos"]
                     x = ghost_pos[0]
                     y = ghost_pos[1]
-                ghost = Ghost(x, y, self.board.game_map, ghost_type, ghost_color, self.pacman.x, self.pacman.y, map=self.current_map, level_id=self.level_id)
+
+                # print("map:", MazeDrawing._shared_map)
+                ghost = Ghost(x, y, MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.x, self.pacman.y, level_id=self.level_id)
                 # Gán id cho ghost
                 ghost.id = i
                 i += 1
@@ -310,10 +315,11 @@ class MazeScene(BaseScene):
                 if status:
                     self.end = True
 
-            # Render text hiển thị số điểm của pacman
-            score_text = self.start_message_font.render(f"Score: {self.pacman._score}", True, (255, 255, 255))
-            score_rect = score_text.get_rect(center=(self.screen_width // 2, self.screen_height - 30))
-            screen.blit(score_text, score_rect)
+            if (self.level_id == 6 ) :
+                # Render text hiển thị số điểm của pacman
+                score_text = self.start_message_font.render(f"Score: {self.pacman._score}", True, (255, 255, 255))
+                score_rect = score_text.get_rect(center=(self.screen_width // 2, self.screen_height - 30))
+                screen.blit(score_text, score_rect)
 
     def handle_quit_event(self, event):
         """Xử lý sự kiện thoát game"""
