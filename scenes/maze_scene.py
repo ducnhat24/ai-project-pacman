@@ -240,7 +240,7 @@ class MazeScene(BaseScene):
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
             if self.level_id == 6:
                 self.pacman.update()
-                if self.pacman._score == 558:
+                if self.pacman._score == Config.MAX_POINT_FROM_FOOD:
                     # switch to win scene
                     sleep_time = 0.2  # Thời gian chờ trước khi chuyển cảnh
                     time.sleep(sleep_time)  # Chờ trong 2 giây

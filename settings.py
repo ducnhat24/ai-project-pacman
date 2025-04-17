@@ -8,6 +8,7 @@ class Config:
     BOARD_HEIGHT = 672
     TILE_WIDTH = BOARD_WIDTH/30
     TILE_HEIGHT = BOARD_HEIGHT/32
+    MAX_POINT_FROM_FOOD = 432
 
 class LevelButtonImageConfig:
     NORMAL_WIDTH = 220
