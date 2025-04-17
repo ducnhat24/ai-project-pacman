@@ -5,17 +5,21 @@ from board_info import BoardInfo
 
 class AStar:
     @staticmethod
-    def calculate_cost(current, next_pos):
+    def calculate_cost(current, next_pos, dot_count=0):
         """
         Tính chi phí di chuyển từ nút current đến nút next_pos.
         Nếu tung độ (y) bằng nhau: trả về |hoành độ_current - hoành độ_next|.
         Nếu hoành độ (x) bằng nhau: trả về |tung độ_current - tung độ_next|.
         """
         if current[1] == next_pos[1]:
-            return abs(current[0] - next_pos[0])
+            base_cost = abs(current[0] - next_pos[0])
         elif current[0] == next_pos[0]:
-            return abs(current[1] - next_pos[1])
-        return 0
+            base_cost = abs(current[1] - next_pos[1])
+        else:
+            base_cost = 0 
+
+        bonus = dot_count * 0.7
+        return base_cost - bonus
 
     @staticmethod
     def traverse_direction(game_map, start, dx, dy, red_nodes):
@@ -25,101 +29,113 @@ class AStar:
         """
         current = start
         path_segment = []
+        dot_count = 0
+
         while True:
+            # Tính vị trí tiếp theo theo hướng cho trước
             next_pos = (current[0] + dx, current[1] + dy)
             
             if not is_valid(game_map, next_pos):
                 return None
             
             path_segment.append(next_pos)
+            # Đếm số lượng thức ăn
+            x, y = next_pos
+            if game_map[y][x] == 1:
+                dot_count += 1
+                
             current = next_pos
             
+            # Nếu gặp nút red, tính chi phí và trả về thông tin
             if next_pos in red_nodes:
-                cost = AStar.calculate_cost(start, next_pos)
+                cost = AStar.calculate_cost(start, next_pos, dot_count)
                 return next_pos, path_segment, cost
 
     @staticmethod
-    def heuristic(pos, goal):
+    def heuristic(node, goal):
         """
-        Hàm heuristic sử dụng khoảng cách Manhattan giữa pos và goal.
-        Đây là hàm ước lượng dưới (admissible) với các di chuyển theo 4 hướng.
+        Hàm heuristic ước lượng chi phí từ node hiện tại đến đích (goal).
+        Ở đây sử dụng khoảng cách Manhattan.
         """
-        return abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
+        return abs(node[0] - goal[0]) + abs(node[1] - goal[1])
 
     @staticmethod
     def find_path(game_map, start, goal):
         tracemalloc.start()
         
-        # Tạo tập các nút red và đảm bảo goal luôn có trong tập.
+        # Tiền xử lý: tạo tập các nút red và đảm bảo goal luôn có trong tập
         red_nodes = set(BoardInfo.red_nodes)
         if goal not in red_nodes:
             red_nodes.add(goal)
         
-        print("Danh sách node đỏ:", list(red_nodes))
-        print("Số lượng node đỏ:", len(red_nodes))
-        
-        # Sử dụng dictionary lưu lại các nút đã mở rộng với chi phí tối ưu (g) đã đạt được.
+        # Theo dõi các nút đã mở rộng (node: chi phí tốt nhất g(n) đến nó)
         expanded_nodes = {}
         expanded_red_nodes_count = 0
         
-        # Nếu start là nút red, lưu thông tin chiều dài đoạn đường.
+        # Nếu start là nút red, lưu thêm thông tin về chiều dài đoạn đường đi
         red_nodes_with_length = {start: 0} if start in red_nodes else {}
-        
         total_expanded_nodes = 0
+        
+        # Khởi tạo biến path trước khi vào vòng lặp
         path = []
+
+        # Hàng đợi ưu tiên: (f(n) = g(n) + h(n), nút hiện tại, đường đi từ nút đầu, g(n))
+        g_start = 0
+        h_start = AStar.heuristic(start, goal)
+        f_start = g_start + h_start
+
+        heap = [(f_start, start, [], g_start)]
         
-        # Hàng đợi ưu tiên: (f = g + h, g, nút hiện tại, đường đi từ nút bắt đầu)
-        start_h = AStar.heuristic(start, goal)
-        heap = [(start_h, 0, start, [])]  # (f, g, current, path)
-        
-        # Các hướng di chuyển: lên, xuống, trái, phải.
+        # Các hướng di chuyển: lên, xuống, trái, phải
         directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-        
+
         while heap:
-            f, g, current, current_path = heapq.heappop(heap)
+            f_cost, current, current_path, g_cost = heapq.heappop(heap)
             
-            # Bỏ qua nếu đã có đường ngắn hơn đến current
-            if current in expanded_nodes and expanded_nodes[current] <= g:
+            # Nếu đã có đường đi tốt hơn đến nút này thì bỏ qua
+            if current in expanded_nodes:
                 continue
-            expanded_nodes[current] = g
+                
+            expanded_nodes[current] = f_cost
             
-            # Nếu current là một nút red, lưu lại thông tin mở rộng
+            # Cập nhật số nút red được mở rộng và số nút đi qua (dựa trên độ dài của đoạn đường đi)
             if current in red_nodes:
                 expanded_red_nodes_count += 1
                 total_expanded_nodes += red_nodes_with_length.get(current, 0)
-            
-            # Kiểm tra nếu đã đạt đích
+                
+            # Nếu đã đến đích thì kết thúc
             if current == goal:
                 path = current_path
                 break
-            
-            # Duyệt qua các hướng di chuyển
+                
+            # Duyệt theo 4 hướng
             for dx, dy in directions:
                 result = AStar.traverse_direction(game_map, current, dx, dy, red_nodes)
                 if result:
                     next_pos, path_segment, step_cost = result
+                    new_g = g_cost + step_cost
+                    new_h = AStar.heuristic(next_pos, goal)
+
+                    new_f = new_g + new_h
                     
-                    new_g = g + step_cost            # Chi phí từ start đến next_pos
-                    new_f = new_g + AStar.heuristic(next_pos, goal)  # f = g + h
-                    
-                    # Kiểm tra nếu có cách ngắn hơn tới next_pos
-                    if next_pos not in expanded_nodes or new_g < expanded_nodes[next_pos]:
+                    # Nếu chưa mở rộng nút hoặc tìm được đường đi tốt hơn
+                    if next_pos not in expanded_nodes:
                         new_path = current_path + path_segment
-                        heapq.heappush(heap, (new_f, new_g, next_pos, new_path))
-                        # Cập nhật chiều dài đoạn đường của nút red nếu tốt hơn
+                        heapq.heappush(heap, (new_f, next_pos, new_path, new_g))
+                        # Cập nhật (hoặc khởi tạo) giá trị chiều dài đoạn đường từ current đến next_pos
                         if next_pos not in red_nodes_with_length or len(path_segment) < red_nodes_with_length[next_pos]:
                             red_nodes_with_length[next_pos] = len(path_segment)
         
-        # Hiển thị các thông tin debug
-        print("Path:", path)
-        print("Nodes red expanded:", expanded_red_nodes_count)
-        print("Total nodes passed:", total_expanded_nodes)
+
+        print("path:", path)
+        print("nodes expanded:", expanded_red_nodes_count)
+        print("total nodes passed:", total_expanded_nodes)
         
         current_mem, peak_memory = tracemalloc.get_traced_memory()
-        print("Current memory:", current_mem)
-        print("Peak memory:", peak_memory)
+        print("current:", current_mem)
+        print("peak_memory:", peak_memory)
         
         peak_memory_kb = peak_memory / 1024
         tracemalloc.stop()
-        
+
         return path, total_expanded_nodes, peak_memory_kb
