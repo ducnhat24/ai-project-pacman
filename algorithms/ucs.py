@@ -18,7 +18,7 @@ class UCS:
         else:
             base_cost = 0 
 
-        bonus = dot_count * 0.5
+        bonus = dot_count * 0.7
         return base_cost - bonus
 
     @staticmethod
@@ -81,7 +81,7 @@ class UCS:
             cost_so_far, current, current_path = heapq.heappop(heap)
             
             # Nếu đã có đường đi tốt hơn đến nút này thì bỏ qua
-            if current in expanded_nodes and expanded_nodes[current] <= cost_so_far:
+            if current in expanded_nodes:
                 continue
                 
             expanded_nodes[current] = cost_so_far
@@ -104,14 +104,13 @@ class UCS:
                     new_cost = cost_so_far + step_cost
 
                     # Nếu chưa mở rộng nút hoặc tìm được đường đi tốt hơn
-                    if next_pos not in expanded_nodes or new_cost < expanded_nodes[next_pos]:
+                    if next_pos not in expanded_nodes:
                         new_path = current_path + path_segment
                         heapq.heappush(heap, (new_cost, next_pos, new_path))
                         # Cập nhật (hoặc khởi tạo) giá trị chiều dài đoạn đường từ current đến next_pos
                         if next_pos not in red_nodes_with_length or len(path_segment) < red_nodes_with_length[next_pos]:
                             red_nodes_with_length[next_pos] = len(path_segment)
         
-        # Nếu không tìm thấy đường đi, path vẫn là []
         print("path:", path)
         print("nodes expanded:", expanded_red_nodes_count)
         print("total nodes passed:", total_expanded_nodes)
