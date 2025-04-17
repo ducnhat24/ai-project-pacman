@@ -20,8 +20,10 @@ class MazeScene(BaseScene):
     def __init__(self, scene_manager, screen, level_id=1):
         super().__init__(scene_manager, screen)
         self.maze = MazeDrawing(screen)
-
-        self.game_map = MazeDrawing._shared_map
+        
+        self.board = BoardInfo()
+        # Map đánh dấu vị trí ghost
+        self.current_map = deepcopy(self.board.game_map)
         
         # Lưu level hiện tại
         self.level_id = level_id
@@ -31,7 +33,7 @@ class MazeScene(BaseScene):
         self.current_test_case = "test1"
 
         # Khởi tạo Pacman
-        self.pacman = Pacman(3, 2, self.game_map) 
+        self.pacman = Pacman(3, 2, MazeDrawing._shared_map) 
         
         # Khởi tạo PerformanceMonitor
         self.performance_monitors = {}
@@ -43,7 +45,7 @@ class MazeScene(BaseScene):
             ghost_type = ghost_config["type"]
             ghost_color = ghost_config["color"]
             ghost_pos = ghost_config["pos"]
-            ghost = Ghost(ghost_pos[0], ghost_pos[1], MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, level_id=self.level_id)
+            ghost = Ghost(ghost_pos[0], ghost_pos[1], MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, self.current_map, level_id=self.level_id)
             # Gán id cho ghost
             ghost.id = i
             i += 1
@@ -122,10 +124,11 @@ class MazeScene(BaseScene):
         
         self.end = False
         
-        board = BoardInfo()
-        
-        MazeDrawing._shared_map = deepcopy(board.initMaze)  # Lấy ma trận cho level
+        self.board = BoardInfo()
 
+        self.current_map = deepcopy(self.board.game_map)
+        
+        MazeDrawing._shared_map = deepcopy(self.board.initMaze)  # Lấy ma trận cho level
         
         if test_case_name in TEST_CASES:
             self.current_test_case = test_case_name
@@ -154,7 +157,7 @@ class MazeScene(BaseScene):
                     y = ghost_pos[1]
 
                 # print("map:", MazeDrawing._shared_map)
-                ghost = Ghost(x, y, MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.x, self.pacman.y, level_id=self.level_id)
+                ghost = Ghost(x, y, MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.x, self.pacman.y, self.current_map, level_id=self.level_id)
                 # Gán id cho ghost
                 ghost.id = i
                 i += 1
@@ -248,7 +251,7 @@ class MazeScene(BaseScene):
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 # print(self.current_map)
-                ghost.follow_path(self.pacman.y, self.pacman.x, self.game_map)
+                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map)
                 if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
                     self.game_over = True
                     expanded_nodes = ghost.total_expanded_nodes

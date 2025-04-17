@@ -85,7 +85,7 @@ class Pacman(Entity):
                 self.real_x = self.end_pos[1] * Config.TILE_WIDTH  # Cập nhật vị trí thực tế
                 self.real_y = self.end_pos[0] * Config.TILE_HEIGHT  # Cập nhật vị trí thực tế
             
-            elif 0 < self.move_progress < 1 and self.game_map[old_x][old_y] == 1:
+            elif 0 < self.move_progress < 1 and MazeDrawing._shared_map[old_x][old_y] == 1:
                 MazeDrawing._shared_map[old_x][old_y] = 0  # Đặt lại ô cũ thành tường
                 self._score += 1  # Tăng điểm số
 
