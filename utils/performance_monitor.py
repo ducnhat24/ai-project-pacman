@@ -109,13 +109,13 @@ class PerformanceMonitor:
         if (check):
             metrics_text = [
                 f"Algorithm: {metrics['algorithm']}",
-                f"Time Algorithm: {metrics['time_algorithm']:.7f} seconds",
+                f"Time Algorithm: {metrics['time_algorithm'] * 1000:.2f} ms",,
                 f"Expanded Nodes: {metrics['expanded_nodes']}",
             ]
         else:
             metrics_text = [
                 f"Algorithm: {metrics['algorithm']}",
-                f"Time Algorithm: {metrics['time_algorithm']:.7f} seconds",
+                f"Time Algorithm: {metrics['time_algorithm'] * 1000:.2f} ms",,
                 f"Expanded Nodes: {metrics['expanded_nodes']}",
                 f"Memory Used: {metrics['memory_used']:.2f} KB",
                 f"Total Time: {metrics['time_move']:.2f} seconds"
