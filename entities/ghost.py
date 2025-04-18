@@ -77,14 +77,14 @@ class Ghost(Entity):
         # self.expanded_nodes += expanded_nodes
         # self.path_ready = True
         end_time = time.time()
-        total_time = end_time - start_time
+        time_algorithm = end_time - start_time
 
-        print("total_time ", total_time)
+        print("time_algorithm ", time_algorithm)
         print(self.ghost_type, " use memory ", memory)
 
         self.total_expanded_nodes += expanded_nodes
         self.memory += memory
-        self.total_time += total_time
+        self.total_time += time_algorithm
         self.path = path
         self.expanded_nodes = expanded_nodes  # Cập nhật expanded_nodes với giá trị của lần tìm đường hiện tại
         self.path_ready = True

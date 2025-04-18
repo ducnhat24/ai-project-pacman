@@ -125,6 +125,8 @@ class MazeScene(BaseScene):
         for monitor in self.performance_monitors.values():
             if monitor:
                 monitor.close_popup()
+                # Thiết lập test case cho monitor
+                monitor.set_test_case(test_case_name)
         
         self.end = False
         
@@ -166,6 +168,8 @@ class MazeScene(BaseScene):
                 ghost.id = i
                 i += 1
                 monitor = PerformanceMonitor()
+                # Thiết lập test case cho monitor mới
+                monitor.set_test_case(test_case_name)
                 self.performance_monitors[ghost.id] = monitor
                 
                 self.ghosts.append(ghost)
@@ -187,11 +191,6 @@ class MazeScene(BaseScene):
                     print("current_test_case", self.current_test_case)
                     self.reset_test_case()
                     break
-            # if self.performance_monitor.handle_events(event):
-            #     # Nếu popup được đóng, reset test case
-            #     print("current_test_case", self.current_test_case)
-            #     self.reset_test_case()
-            #     continue
 
             if event.type == pygame.QUIT:
                 self.handle_quit_event(event)
@@ -203,13 +202,12 @@ class MazeScene(BaseScene):
                     # Cho ghost tính toán đường đi
                     for ghost in self.ghosts:
                         monitor = self.performance_monitors.get(ghost.id)
-                        monitor.init(ghost.ghost_type)
-                        # ghost.(self.pacman.y, self.pacman.x)
-                        #  
-                        
-                    # Bắt đầu đo thông số
-                    #self.performance_monitor.start_monitoring()
 
+                        monitor.init(ghost.ghost_type, self.current_test_case)  # Truyền test case vào init
+                        # Find Path
+                        ghost.move(self.pacman.y, self.pacman.x)
+
+                        
                 elif self.game_started and self.level_id == 6:
                     if event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.pacman.set_next_direction(-1, 0)
@@ -219,8 +217,6 @@ class MazeScene(BaseScene):
                         self.pacman.set_next_direction(0, -1)
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.pacman.set_next_direction(0, 1)
-
-                    # print("current map:",self.current_map)
 
             # Xử lý các nút bấm
             for button in self.buttons:
