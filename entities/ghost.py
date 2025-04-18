@@ -76,27 +76,28 @@ class Ghost(Entity):
 
 
 
-    def follow_path(self, pacman_x, pacman_y, map): 
+    def follow_path(self, pacman_x, pacman_y, map, lock): 
         # print(map)
         """ Di chuyển theo đường tìm được và tự cập nhật lại đường đi nếu cần """
         if self.path_ready and self.path:
             next_pos = self.path[0]
             new_x, new_y = next_pos
-            if (map[new_y][new_x] != 10):
-                self.path.pop(0)
-                map[self.y][self.x] = 1
-                self.update_direction(new_x, new_y)
-                self.x, self.y = new_x, new_y
-                self.update_image()
-                map[self.y][self.x] = 10
+            with lock:
+                if (map[new_y][new_x] != 10):
+                    self.path.pop(0)
+                    map[self.y][self.x] = 1
+                    self.update_direction(new_x, new_y)
+                    self.x, self.y = new_x, new_y
+                    self.update_image()
+                    map[self.y][self.x] = 10
 
-                self.steps_since_last_path_update += 1
+                    self.steps_since_last_path_update += 1
 
-                if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval and self.target_pacman_x != pacman_x and self.target_pacman_y != pacman_y:
-                    self.move(pacman_x, pacman_y)
-                    self.steps_since_last_path_update = 0
+                    if self.level_id == 6 and self.steps_since_last_path_update >= self.path_update_interval and self.target_pacman_x != pacman_x and self.target_pacman_y != pacman_y:
+                        self.move(pacman_x, pacman_y)
+                        self.steps_since_last_path_update = 0
 
-                # sleep(0.01)
+                    # sleep(0.01)
         else:
             # Nếu chưa có đường hoặc path chưa sẵn sàng => bắt đầu tìm
             self.move(pacman_x, pacman_y)

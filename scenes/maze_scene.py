@@ -2,6 +2,7 @@ from copy import deepcopy
 import sys
 import pygame
 import time
+from threading import Lock
 
 from board_info import BoardInfo
 from entities.ghost import Ghost
@@ -37,6 +38,9 @@ class MazeScene(BaseScene):
         
         # Khởi tạo PerformanceMonitor
         self.performance_monitors = {}
+
+        # Tạo lock dùng chung
+        self.position_lock = Lock()
         
         # Khởi tạo Ghosts theo cấu hình level
         self.ghosts = []
@@ -251,7 +255,7 @@ class MazeScene(BaseScene):
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 # print(self.current_map)
-                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map)
+                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map, self.position_lock)
                 if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
                     self.game_over = True
                     expanded_nodes = ghost.total_expanded_nodes
