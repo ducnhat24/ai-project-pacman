@@ -8,14 +8,14 @@ from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pa
 
 class PathFinding:
     @staticmethod
-    def find_path(game_map, start, goal, ghost_type):
+    def find_path(game_map, start, goal, ghost_type, random_direction):
         """ Chọn thuật toán tùy theo loại Ghost """
         if ghost_type == "A*":
             return AStar.find_path(game_map, start, goal)
         elif ghost_type == "DFS":
-            return DFS.find_path(game_map, start, goal)
+            return DFS.find_path(game_map, start, goal, random_direction)
         elif ghost_type == "BFS":
-            return BFS.find_path(game_map, start, goal)
+            return BFS.find_path(game_map, start, goal, random_direction)
         elif ghost_type == "UCS":
             return UCS.find_path(game_map, start, goal)
         else:

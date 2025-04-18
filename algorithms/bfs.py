@@ -1,12 +1,13 @@
 # In bfs.py
 from collections import deque
 import tracemalloc
+import random
 
 from utils.pathfinding_utils import is_valid, reconstruct_path 
 
 class BFS:
     @staticmethod
-    def find_path(game_map, start, goal):
+    def find_path(game_map, start, goal, random_direction):
         tracemalloc.start()
 
         queue = deque([start])
@@ -19,11 +20,17 @@ class BFS:
             
             if current == goal:
                 break
-                
-            for neighbor in BFS.get_neighbors(current):
-                if neighbor not in came_from and is_valid(game_map, neighbor):
-                    queue.append(neighbor)
-                    came_from[neighbor] = current
+            
+            if random_direction:
+                for neighbor in BFS.get_neighbors_random(current):
+                    if neighbor not in came_from and is_valid(game_map, neighbor):
+                        queue.append(neighbor)
+                        came_from[neighbor] = current
+            else:
+                for neighbor in BFS.get_neighbors(current):
+                    if neighbor not in came_from and is_valid(game_map, neighbor):
+                        queue.append(neighbor)
+                        came_from[neighbor] = current
         
         # Dựng lại đường đi từ start đến goal
         path = reconstruct_path(came_from, start, goal)
@@ -49,3 +56,17 @@ class BFS:
             (x - 1, y),  # Trái
             (x + 1, y)   # Phải         
         ]
+
+    @staticmethod
+    def get_neighbors_random(pos):
+        x, y = pos
+        neighbors = [
+            (x, y - 1),  # Trên
+            (x, y + 1),  # Dưới
+            (x - 1, y),  # Trái
+            (x + 1, y)   # Phải
+        ]
+        random.shuffle(neighbors)
+        return neighbors
+
+    
