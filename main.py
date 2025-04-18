@@ -9,4 +9,4 @@ from settings import *
 if __name__ == "__main__":
     game = Game()
     game.show_splash_screen(game.screen)  # Gọi phương thức show_splash_screen từ đối tượng game
-    game.run()
+    game.run()      
