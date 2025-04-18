@@ -26,7 +26,7 @@ class DFS:
         
         # Dựng lại đường đi từ start đến goal
         path = reconstruct_path(came_from, start, goal)
-        print("path", path)
+        # print("path", path)
         print("nodes expanded", expanded_nodes)
 
         current, peak_memory = tracemalloc.get_traced_memory()

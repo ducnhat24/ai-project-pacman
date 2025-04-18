@@ -98,19 +98,6 @@ class Pacman(Entity):
             else:
                 self.continue_moving()
 
-
-
-        # next_dx, next_dy = self.next_direction
-        # new_x = self.x + next_dx
-        # new_y = self.y + next_dy
-
-        # # Nếu hướng tiếp theo hợp lệ, đổi hướng ngay
-        # if self.can_move(new_x, new_y):
-        #     self.move(next_dx, next_dy)
-        # else:
-        #     # Nếu không đi hướng mới được thì tiếp tục đi hướng hiện tại
-        #     self.continue_moving()
-
     def update_direction(self, dx, dy):
         """ Cập nhật hướng di chuyển """
         if dx == -1:
