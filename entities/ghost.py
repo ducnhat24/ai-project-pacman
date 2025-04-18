@@ -96,7 +96,7 @@ class Ghost(Entity):
                     self.move(pacman_x, pacman_y)
                     self.steps_since_last_path_update = 0
 
-                # sleep(0.01)
+                sleep(0.1)
         else:
             # Nếu chưa có đường hoặc path chưa sẵn sàng => bắt đầu tìm
             self.move(pacman_x, pacman_y)

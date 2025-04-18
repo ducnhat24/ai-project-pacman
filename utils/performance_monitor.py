@@ -19,20 +19,26 @@ class PerformanceMonitor:
         self.memory = 0
         self.total_time_algorithm = 0
         self.total_time_move = 0
+        self.current_test_case = "test1"  # Giá trị mặc định
 
-    def init(self, algorithm):
+    def init(self, algorithm, test_case=None):
         self.current_algorithm = algorithm
+        if test_case:
+            self.current_test_case = test_case
         self.total_time_algorithm = 0
         self.total_time_move = 0
         self.memory = 0
         self.start_monitoring()
+
+    def set_test_case(self, test_case):
+        """Thiết lập test case hiện tại"""
+        self.current_test_case = test_case
 
     def set_expanded_nodes(self, expanded_nodes):
         self.expanded_nodes = expanded_nodes
 
     def set_memory(self, memory):
         self.memory = memory
-
 
     def set_time(self, time):
         self.total_time_algorithm = time
@@ -75,7 +81,8 @@ class PerformanceMonitor:
             "time_move": self.total_time_move,
             "expanded_nodes": self.expanded_nodes,
             "memory_used": memory_used,
-            "algorithm": self.current_algorithm
+            "algorithm": self.current_algorithm,
+            "test_case": self.current_test_case
         }
 
     def draw_popup(self, screen, position=1, check=False):
@@ -98,8 +105,9 @@ class PerformanceMonitor:
         # Vẽ viền
         pygame.draw.rect(popup_surface, (255, 255, 255), (0, 0, popup_width, popup_height), 2)
 
-        # Vẽ tiêu đề
-        title = self.font.render("Performance Metrics", True, (255, 255, 255))
+        # Vẽ tiêu đề với tên test case
+        test_case_display = metrics['test_case'].replace('test', 'Test Case ')
+        title = self.font.render(f"Performance Metrics - {test_case_display}", True, (255, 255, 255))
         title_rect = title.get_rect(centerx=popup_width//2, y=20)
         popup_surface.blit(title, title_rect)
 
@@ -109,13 +117,13 @@ class PerformanceMonitor:
         if (check):
             metrics_text = [
                 f"Algorithm: {metrics['algorithm']}",
-                f"Time Algorithm: {metrics['time_algorithm'] * 1000:.2f} ms",,
+                f"Time Algorithm: {metrics['time_algorithm'] * 1000:.4f} ms",
                 f"Expanded Nodes: {metrics['expanded_nodes']}",
             ]
         else:
             metrics_text = [
                 f"Algorithm: {metrics['algorithm']}",
-                f"Time Algorithm: {metrics['time_algorithm'] * 1000:.2f} ms",,
+                f"Time Algorithm: {metrics['time_algorithm'] * 1000:.4f} ms",
                 f"Expanded Nodes: {metrics['expanded_nodes']}",
                 f"Memory Used: {metrics['memory_used']:.2f} KB",
                 f"Total Time: {metrics['time_move']:.2f} seconds"
@@ -132,7 +140,7 @@ class PerformanceMonitor:
         instruction_rect = instruction.get_rect(centerx=popup_width//2, y=popup_height - 40)
         popup_surface.blit(instruction, instruction_rect)
        
-         # Xác định vị trí popup dựa vào `position`
+        # Xác định vị trí popup dựa vào `position`
         screen_w, screen_h = Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT
 
         if not check:
@@ -146,7 +154,6 @@ class PerformanceMonitor:
         elif position == 4:  # Bottom-right
             pos = (screen_w - popup_width - 220, screen_h - popup_height - 100)
         
-
         # Vẽ lên màn hình
         screen.blit(popup_surface, pos)
         return True
