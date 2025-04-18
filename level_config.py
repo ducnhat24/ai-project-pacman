@@ -35,10 +35,10 @@ LEVELS = {
     5: {
         "name": "All Algorithms",
         "ghosts": [
-            {"type": "BFS", "color": "blue", "pos": (42, 15)},
-            {"type": "DFS", "color": "pink", "pos": (43, 15)},
-            {"type": "UCS", "color": "orange", "pos": (42, 16)},
-            {"type": "A*", "color": "red", "pos": (43, 16)}
+            {"type": "BFS", "color": "blue", "pos": (57, 2)},
+            {"type": "DFS", "color": "pink", "pos": (57, 13)},
+            {"type": "UCS", "color": "orange", "pos": (57, 21)},
+            {"type": "A*", "color": "red", "pos": (57, 30)}
         ],
         "show_test_buttons": False,
         "description": "So sánh tất cả các thuật toán tìm đường đi"

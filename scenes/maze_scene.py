@@ -34,7 +34,11 @@ class MazeScene(BaseScene):
         self.current_test_case = "test1"
 
         # Khởi tạo Pacman
-        self.pacman = Pacman(3, 2, MazeDrawing._shared_map) 
+        
+        if(level_id == 5): 
+            self.pacman = Pacman(15, 2, MazeDrawing._shared_map)
+        else:
+            self.pacman = Pacman(3, 2, MazeDrawing._shared_map) 
         
         # Khởi tạo PerformanceMonitor
         self.performance_monitors = {}
