@@ -2,6 +2,7 @@ from copy import deepcopy
 import sys
 import pygame
 import time
+from threading import Lock
 
 from board_info import BoardInfo
 from entities.ghost import Ghost
@@ -37,6 +38,9 @@ class MazeScene(BaseScene):
         
         # Khởi tạo PerformanceMonitor
         self.performance_monitors = {}
+
+        # Tạo lock dùng chung
+        self.position_lock = Lock()
         
         # Khởi tạo Ghosts theo cấu hình level
         self.ghosts = []
@@ -198,9 +202,11 @@ class MazeScene(BaseScene):
                     # Cho ghost tính toán đường đi
                     for ghost in self.ghosts:
                         monitor = self.performance_monitors.get(ghost.id)
+
                         monitor.init(ghost.ghost_type, self.current_test_case)  # Truyền test case vào init
                         # Find Path
                         ghost.move(self.pacman.y, self.pacman.x)
+
                         
                 elif self.game_started and self.level_id == 6:
                     if event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -231,6 +237,7 @@ class MazeScene(BaseScene):
 
         if self.game_started and not self.game_over:
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
+            
             if self.level_id == 6:
                 self.pacman.update()
                 if self.pacman._score == Config.MAX_POINT_FROM_FOOD:
@@ -244,7 +251,9 @@ class MazeScene(BaseScene):
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 # print(self.current_map)
-                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map)
+                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map, self.position_lock)
+                # ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map, self.position_lock)
+                ghost.update()
                 if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
                     self.game_over = True
                     expanded_nodes = ghost.total_expanded_nodes
