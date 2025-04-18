@@ -119,6 +119,10 @@ class MazeScene(BaseScene):
         self.game_over = False
         self.expanded_nodes = []  # Danh sách lưu số lượng node đã mở rộng của từng ghost
 
+
+        # Âm thanh
+        self.sounds = Sounds()
+
     def set_test_case(self, test_case_name):
         """Cấu hình vị trí Ghost theo test case"""
         # Đóng popup hiệu suất nếu đang mở
@@ -248,6 +252,7 @@ class MazeScene(BaseScene):
 
 
 
+
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
                 # print(self.current_map)
@@ -256,6 +261,7 @@ class MazeScene(BaseScene):
                 ghost.update()
                 if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
                     self.game_over = True
+                    self.sounds.play_sound("pacman_death")
                     expanded_nodes = ghost.total_expanded_nodes
                     # self.expanded_nodes.append(ghost.expanded_nodes)
                     # self.performance_monitor.stop_monitoring(expanded_nodes)
@@ -335,13 +341,13 @@ class MazeScene(BaseScene):
     def on_enter(self):
         """Được gọi khi vào scene maze"""
         # Phát nhạc nền
-        Sounds().stop_music("menu")
+        Sounds().play_music("game")
         print("Đã vào Maze Scene")
 
     def on_exit(self):
         """Được gọi khi rời scene menu"""
         # Dừng nhạc nền
-        Sounds().stop_music("menu")
+        Sounds().stop_music()
         board = BoardInfo()
         MazeDrawing._shared_map = deepcopy(board.initMaze)  # Lấy ma trận cho level
         print("Đã rời Main Menu")

@@ -124,5 +124,5 @@ class Menu(BaseScene):
     def on_exit(self):
         """Được gọi khi rời scene menu"""
         # Dừng nhạc nền
-        Sounds().stop_music("menu")
+        Sounds().stop_music()
         print("Đã rời Main Menu")

@@ -1,6 +1,7 @@
 import pygame
 from settings import Config
 from scenes.base_scene import BaseScene  # giả sử bạn đặt BaseScene trong scenes/
+from utils.sounds import Sounds
 
 class WinScene(BaseScene):
     def __init__(self, scene_manager, screen):
@@ -12,8 +13,10 @@ class WinScene(BaseScene):
             60
         )
         self.button_hover = False
+        self.sounds = Sounds()
 
     def on_enter(self):
+        self.sounds.play_sound("win") 
         print("Entered WinScene")
 
     def on_exit(self):
