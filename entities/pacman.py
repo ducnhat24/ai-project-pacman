@@ -4,8 +4,7 @@ from entities.entity import Entity
 from maze_drawing import MazeDrawing
 from scene_manager import SceneManager
 from settings import Config
-
-
+from utils.sounds import Sounds
 class Pacman(Entity):
     _score = 0  # Điểm số của pacman
     def __init__(self, x, y, game_map):
@@ -39,6 +38,8 @@ class Pacman(Entity):
 
         self.current_image = self.images["RIGHT"]
         self.direction = "RIGHT"
+
+        self.sounds = Sounds()
 
     def set_next_direction(self, dx, dy):
         self.next_direction = (dx, dy)
@@ -88,6 +89,7 @@ class Pacman(Entity):
             elif 0 < self.move_progress < 1 and MazeDrawing._shared_map[old_x][old_y] == 1:
                 MazeDrawing._shared_map[old_x][old_y] = 0  # Đặt lại ô cũ thành tường
                 self._score += 1  # Tăng điểm số
+                self.sounds.play_sound("pacman_eat")
 
         else:
             next_dx, next_dy = self.next_direction
