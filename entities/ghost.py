@@ -44,6 +44,7 @@ class Ghost(Entity):
         # Đánh dấu ghost ở trên map
         map[y][x] = 10
         self.time_out = 5
+        self.random_direction = False
 
         
 
@@ -72,7 +73,7 @@ class Ghost(Entity):
     def async_find_path(self, target_y, target_x):
         start_time = time.time()
         path, expanded_nodes, memory = PathFinding.find_path(
-            self.game_map, (self.x, self.y), (target_x, target_y), self.ghost_type
+            self.game_map, (self.x, self.y), (target_x, target_y), self.ghost_type, self.random_direction
         )
         # self.path = path
         # self.expanded_nodes += expanded_nodes
@@ -89,6 +90,7 @@ class Ghost(Entity):
         self.path = path
         self.expanded_nodes = expanded_nodes  # Cập nhật expanded_nodes với giá trị của lần tìm đường hiện tại
         self.path_ready = True
+        self.random_direction = False
 
     def follow_path(self, pacman_x, pacman_y, map, lock): 
         # Kiểm tra xem pacman đã di chuyển chưa và cập nhật đường đi nếu cần
@@ -131,6 +133,7 @@ class Ghost(Entity):
         elif not self.moving and (not self.path_ready or not self.path or len(self.path) == 0):
             self.move(pacman_x, pacman_y)
         if self.time_out < 0:
+            self.random_direction = True
             self.move(pacman_x, pacman_y)
 
     # def follow_path(self, pacman_x, pacman_y, map, lock): 
