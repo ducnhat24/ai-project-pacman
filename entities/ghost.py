@@ -43,6 +43,7 @@ class Ghost(Entity):
 
         # Đánh dấu ghost ở trên map
         map[y][x] = 10
+        self.time_out = 5
 
         
 
@@ -123,8 +124,13 @@ class Ghost(Entity):
                     self.moving = True
                     self.move_progress = 0.0
                     self.last_move_time = pygame.time.get_ticks()
-        
+
+                    self.time_out = 5
+                else:
+                    self.time_out -= 1
         elif not self.moving and (not self.path_ready or not self.path or len(self.path) == 0):
+            self.move(pacman_x, pacman_y)
+        if self.time_out < 0:
             self.move(pacman_x, pacman_y)
 
     # def follow_path(self, pacman_x, pacman_y, map, lock): 

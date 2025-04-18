@@ -1,4 +1,5 @@
 import tracemalloc
+import random
 
 from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
 
@@ -41,10 +42,12 @@ class DFS:
     @staticmethod
     def get_neighbors(pos):
         x, y = pos
-        return [
+        neighbors = [
             (x, y - 1),  # Trên
             (x, y + 1),  # Dưới
             (x - 1, y),  # Trái
-            (x + 1, y)   # Phải         
+            (x + 1, y)   # Phải
         ]
+        random.shuffle(neighbors)
+        return neighbors
     
