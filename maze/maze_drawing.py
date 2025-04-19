@@ -2,7 +2,7 @@ import copy
 import pygame
 from math import pi
 from settings import Config, Color
-from board_info import BoardInfo
+from maze.board_info import BoardInfo
 from settings import Config, Color
 
 class MazeDrawing:

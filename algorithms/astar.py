@@ -1,7 +1,7 @@
 import heapq
 import tracemalloc
 from utils.pathfinding_utils import is_valid  
-from board_info import BoardInfo 
+from maze.board_info import BoardInfo 
 
 class AStar:
     @staticmethod

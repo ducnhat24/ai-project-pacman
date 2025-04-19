@@ -1,7 +1,7 @@
 
 import pygame
 from entities.entity import Entity
-from maze_drawing import MazeDrawing
+from maze.maze_drawing import MazeDrawing
 from scene_manager import SceneManager
 from settings import Config
 from utils.sounds import Sounds

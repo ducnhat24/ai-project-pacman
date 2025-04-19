@@ -1,13 +1,12 @@
 from copy import deepcopy
 import pygame
 import sys
-from maze_drawing import MazeDrawing
 from scenes.base_scene import BaseScene
 from scenes.maze_scene import MazeScene
 from settings import *
 from utils.image_button import ImageButton 
 from utils.sounds import Sounds
-from board_info import BoardInfo
+from maze.board_info import BoardInfo
 
 class Menu(BaseScene):
     """Scene menu chính"""

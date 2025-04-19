@@ -2,7 +2,7 @@ from time import sleep
 import time
 import pygame
 from entities.entity import Entity
-from maze_drawing import MazeDrawing
+from maze.maze_drawing import MazeDrawing
 from settings import Config
 from utils.pathfinding import PathFinding
 import threading

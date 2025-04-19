@@ -4,17 +4,17 @@ import pygame
 import time
 from threading import Lock
 
-from board_info import BoardInfo
+from maze.board_info import BoardInfo
 from entities.ghost import Ghost
 from entities.pacman import Pacman
-from maze_drawing import MazeDrawing
+from maze.maze_drawing import MazeDrawing
 from scenes.base_scene import BaseScene
 from utils.button import Button
 from utils.sounds import Sounds
 from utils.text_button import TextButton
 from utils.performance_monitor import PerformanceMonitor
 from settings import Config
-from level_config import TEST_CASES, LEVELS
+from maze.level_config import TEST_CASES, LEVELS
 
 class MazeScene(BaseScene):
     """Scene hiển thị mê cung"""

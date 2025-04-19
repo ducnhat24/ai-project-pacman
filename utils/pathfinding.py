@@ -3,7 +3,6 @@ from algorithms.bfs import BFS
 from algorithms.dfs import DFS
 from algorithms.ucs import UCS
 from algorithms.astar import AStar
-from algorithms.new_ucs import NewUCS
 from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
 
 class PathFinding:
