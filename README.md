@@ -14,6 +14,23 @@ This project is a Pacman game implemented in Python using **Pygame**, where each
 - Red Ghost: A* Search (A-Star)
 
 ## 🚀 How to Run
+### 0. Prerequisite: Install Python
+
+Before installing dependencies or running the game, make sure you have Python 3.11 (or later) installed on your system:
+
+- **Windows**  
+  1. Go to the official Python downloads page: https://www.python.org/downloads/windows/ :contentReference[oaicite:0]{index=0}  
+  2. Download the latest “Windows installer (64-bit)” and **check “Add Python 3.x to PATH”** on the first screen.  
+  3. Run the installer.
+
+- **macOS**  
+  1. Visit https://www.python.org/downloads/macos/ and download the latest macOS installer. :contentReference[oaicite:1]{index=1}  
+  2. Open the `.pkg` file and follow the prompts to complete installation.  
+  3. Alternatively, you can install via Homebrew:  
+     ```bash
+     brew install python
+     ```
+Once Python is installed, you can proceed with:
 
 ### 1. Install dependencies
 You can install all required packages using pip:
