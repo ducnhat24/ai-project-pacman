@@ -1,9 +1,13 @@
-from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
+import tracemalloc
+import random
 
+from utils.pathfinding_utils import is_valid, reconstruct_path  # Import from pathfinding_utils
 
 class DFS:
     @staticmethod
-    def find_path(game_map, start, goal):
+    def find_path(game_map, start, goal, random_direction):
+        tracemalloc.start() 
+
         stack = [start]                
         came_from = {start: None}      
         expanded_nodes = 0             
@@ -14,24 +18,51 @@ class DFS:
 
             if current == goal:
                 break                
-            
-            x, y = current
-
-            # Duyệt 4 hướng: trên, dưới, trái, phải
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                next_pos = (x + dx, y + dy)
-                if next_pos not in came_from and is_valid(game_map, next_pos):
-                    stack.append(next_pos)
-                    came_from[next_pos] = current
-
-        # Nếu không tìm được đường đi đến goal, trả về danh sách chỉ chứa start
-        if goal not in came_from:
-            return [start], expanded_nodes
+        
+            if random_direction:
+                for neighbor in DFS.get_neighbors_random(current):
+                    if neighbor not in came_from and is_valid(game_map, neighbor):
+                        stack.append(neighbor)
+                        came_from[neighbor] = current
+            else:
+                for neighbor in DFS.get_neighbors(current):
+                    if neighbor not in came_from and is_valid(game_map, neighbor):
+                        stack.append(neighbor)
+                        came_from[neighbor] = current
         
         # Dựng lại đường đi từ start đến goal
         path = reconstruct_path(came_from, start, goal)
-        
-        print("path", path)
+        # print("path", path)
         print("nodes expanded", expanded_nodes)
-        return path, expanded_nodes
+
+        current, peak_memory = tracemalloc.get_traced_memory()
+        peak_memory_kb = peak_memory / (1024)  
+        print("current ", current)
+        print("peak_memory_kb ", peak_memory_kb)
+        
+        tracemalloc.stop()
+
+        return path, expanded_nodes, peak_memory_kb
+    
+    @staticmethod
+    def get_neighbors(pos):
+        x, y = pos
+        return [
+            (x, y - 1),  # Trên
+            (x, y + 1),  # Dưới
+            (x - 1, y),  # Trái
+            (x + 1, y)   # Phải         
+        ]
+
+    @staticmethod
+    def get_neighbors_random(pos):
+        x, y = pos
+        neighbors = [
+            (x, y - 1),  # Trên
+            (x, y + 1),  # Dưới
+            (x - 1, y),  # Trái
+            (x + 1, y)   # Phải
+        ]
+        random.shuffle(neighbors)
+        return neighbors
     

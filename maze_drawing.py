@@ -8,11 +8,17 @@ from settings import Config, Color
 class MazeDrawing:
     TILE_WIDTH = Config.TILE_WIDTH
     TILE_HEIGHT = Config.TILE_HEIGHT
+    _shared_map = None  # singleton map
+    _offset_x = (Config.SCREEN_WIDTH - 60 * TILE_WIDTH) // 2
+    _offset_y = 10
+
 
     def __init__(self, screen):
-        self.board = BoardInfo()  # Khởi tạo BoardInfo
-        self.map = copy.deepcopy(self.board.game_map)  # Initialize the maze from Board
         self.screen = screen
+        self.board = BoardInfo()
+        if MazeDrawing._shared_map is None:
+            MazeDrawing._shared_map = copy.deepcopy(self.board.game_map)
+        self.map = MazeDrawing._shared_map
         
         # Define shadow color
         self.shadow_color = (50, 50, 50, 128)
@@ -31,7 +37,7 @@ class MazeDrawing:
         screen_width = Config.SCREEN_WIDTH
         screen_height = Config.SCREEN_HEIGHT
 
-        self.offset_x = (screen_width - total_map_width_px) // 2
+        self.offset_x = (Config.SCREEN_WIDTH - 60 * self.TILE_WIDTH) // 2
         self.offset_y = 10
 
     def draw_rounded_line(self, surface, color, start_pos, end_pos, width, shadow=False):
@@ -67,7 +73,7 @@ class MazeDrawing:
         # --- Vòng lặp vẽ từng ô, áp dụng offset ---
         for i in range(self.num_rows):
             for j in range(self.num_cols):
-                cell = self.map[i][j]
+                cell = MazeDrawing._shared_map[i][j]
 
                 # Tọa độ góc trên-trái của ô hiện tại (đã cộng offset)
                 draw_base_x = j * self.TILE_WIDTH + self.offset_x
@@ -116,7 +122,7 @@ class MazeDrawing:
                                         (int_base_x + int_TILE_WIDTH, int_center_y),
                                         6, shadow=True)
 
-                elif cell == 5: # Góc dưới-trái
+                elif cell == 5: # Góc trên-phải
                     rect_left = int(draw_base_x - int_TILE_WIDTH * 0.4 - 2)
                     rect_top = int(draw_center_y)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
@@ -125,7 +131,7 @@ class MazeDrawing:
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 5 at ({i},{j}): {arc_rect}")
 
-                elif cell == 6: # Góc dưới-phải
+                elif cell == 6: # Góc trên-trái
                     rect_left = int(draw_base_x + int_TILE_WIDTH * 0.5)
                     rect_top = int(draw_center_y)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
@@ -134,7 +140,7 @@ class MazeDrawing:
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 6 at ({i},{j}): {arc_rect}")
 
-                elif cell == 7: # Góc trên-phải
+                elif cell == 7: # Góc dưới-trái
                     rect_left = int(draw_base_x + int_TILE_WIDTH * 0.5)
                     rect_top = int(draw_base_y - int_TILE_HEIGHT * 0.4)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)
@@ -143,7 +149,7 @@ class MazeDrawing:
                     except ValueError:
                         print(f"Warning: Invalid rect for arc cell 7 at ({i},{j}): {arc_rect}")
 
-                elif cell == 8: # Góc trên-trái
+                elif cell == 8: # Góc dưới-phải
                     rect_left = int(draw_base_x - int_TILE_WIDTH * 0.4 - 2)
                     rect_top = int(draw_base_y - int_TILE_HEIGHT * 0.4)
                     arc_rect = pygame.Rect(rect_left, rect_top, int_TILE_WIDTH, int_TILE_HEIGHT)

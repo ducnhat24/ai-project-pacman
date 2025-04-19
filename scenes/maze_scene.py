@@ -1,6 +1,8 @@
+from copy import deepcopy
 import sys
 import pygame
 import time
+from threading import Lock
 
 from board_info import BoardInfo
 from entities.ghost import Ghost
@@ -18,8 +20,11 @@ class MazeScene(BaseScene):
     """Scene hiển thị mê cung"""
     def __init__(self, scene_manager, screen, level_id=1):
         super().__init__(scene_manager, screen)
-        self.board = BoardInfo()        
         self.maze = MazeDrawing(screen)
+        
+        self.board = BoardInfo()
+        # Map đánh dấu vị trí ghost
+        self.current_map = deepcopy(self.board.game_map)
         
         # Lưu level hiện tại
         self.level_id = level_id
@@ -29,18 +34,33 @@ class MazeScene(BaseScene):
         self.current_test_case = "test1"
 
         # Khởi tạo Pacman
-        self.pacman = Pacman(2, 2, self.board.game_map) 
+        
+        if(level_id == 5): 
+            self.pacman = Pacman(15, 2, MazeDrawing._shared_map)
+        else:
+            self.pacman = Pacman(3, 2, MazeDrawing._shared_map) 
         
         # Khởi tạo PerformanceMonitor
-        self.performance_monitor = PerformanceMonitor()
+        self.performance_monitors = {}
+
+        # Tạo lock dùng chung
+        self.position_lock = Lock()
         
         # Khởi tạo Ghosts theo cấu hình level
         self.ghosts = []
+        i = 0
         for ghost_config in self.level_config["ghosts"]:
             ghost_type = ghost_config["type"]
             ghost_color = ghost_config["color"]
             ghost_pos = ghost_config["pos"]
-            ghost = Ghost(ghost_pos[0], ghost_pos[1], self.board.game_map, ghost_type, ghost_color)
+            ghost = Ghost(ghost_pos[0], ghost_pos[1], MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.y, self.pacman.x, self.current_map, level_id=self.level_id)
+            # Gán id cho ghost
+            ghost.id = i
+            i += 1
+        
+            monitor = PerformanceMonitor()
+            self.performance_monitors[ghost.id] = monitor
+            
             self.ghosts.append(ghost)
         
         # Kích thước nút bấm
@@ -52,7 +72,7 @@ class MazeScene(BaseScene):
         self.screen_width = Config.SCREEN_WIDTH
 
         spacing = 15
-
+        self.end = False
         # Thêm biến để theo dõi button đang được chọn
         self.selected_button = None
 
@@ -98,10 +118,32 @@ class MazeScene(BaseScene):
         self.blur_surface = pygame.Surface((self.screen_width, self.screen_height - self.button_height - 10), pygame.SRCALPHA)
         self.blur_surface.fill((0, 0, 0, 128))
 
+        self.last_pacman_move_time = pygame.time.get_ticks()
+        self.last_ghost_path_time = 0
+        self.ghost_path_delay = 2000  # mỗi 300ms mới cho ghost tính toán lại đường đi
+        self.game_over = False
+        self.expanded_nodes = []  # Danh sách lưu số lượng node đã mở rộng của từng ghost
+
+
+        # Âm thanh
+        self.sounds = Sounds()
+
     def set_test_case(self, test_case_name):
         """Cấu hình vị trí Ghost theo test case"""
         # Đóng popup hiệu suất nếu đang mở
-        self.performance_monitor.close_popup()
+        for monitor in self.performance_monitors.values():
+            if monitor:
+                monitor.close_popup()
+                # Thiết lập test case cho monitor
+                monitor.set_test_case(test_case_name)
+        
+        self.end = False
+        
+        self.board = BoardInfo()
+
+        self.current_map = deepcopy(self.board.game_map)
+        
+        MazeDrawing._shared_map = deepcopy(self.board.initMaze)  # Lấy ma trận cho level
         
         if test_case_name in TEST_CASES:
             # Cập nhật button được chọn
@@ -121,14 +163,31 @@ class MazeScene(BaseScene):
             self.last_blink_time = time.time()
 
             # Reset vị trí Pacman về vị trí ban đầu
-            self.pacman = Pacman(2, 2, self.board.game_map)
+            self.pacman = Pacman(3, 2, MazeDrawing._shared_map)
+            MazeDrawing._shared_map[self.pacman.x][self.pacman.y] = 0  # Đặt lại ô cũ thành tường
             
             # Tạo lại danh sách Ghosts với vị trí mới
             self.ghosts = []
+            self.performance_monitors = {}
+            i = 0
             for ghost_config in self.level_config["ghosts"]:
                 ghost_type = ghost_config["type"]
                 ghost_color = ghost_config["color"]
-                ghost = Ghost(x, y, self.board.game_map, ghost_type, ghost_color)
+                if self.level_id >= 5:
+                    ghost_pos = ghost_config["pos"]
+                    x = ghost_pos[0]
+                    y = ghost_pos[1]
+
+                # print("map:", MazeDrawing._shared_map)
+                ghost = Ghost(x, y, MazeDrawing._shared_map, ghost_type, ghost_color, self.pacman.x, self.pacman.y, self.current_map, level_id=self.level_id)
+                # Gán id cho ghost
+                ghost.id = i
+                i += 1
+                monitor = PerformanceMonitor()
+                # Thiết lập test case cho monitor mới
+                monitor.set_test_case(test_case_name)
+                self.performance_monitors[ghost.id] = monitor
+                
                 self.ghosts.append(ghost)
             
             # Phát âm thanh khi thay đổi test case
@@ -143,11 +202,11 @@ class MazeScene(BaseScene):
         """Xử lý sự kiện trong mê cung"""
         for event in events:
             # Xử lý sự kiện cho PerformanceMonitor trước
-            if self.performance_monitor.handle_events(event):
-                # Nếu popup được đóng, reset test case
-                print("current_test_case", self.current_test_case)
-                self.reset_test_case()
-                continue
+            for monitor in self.performance_monitors.values():
+                if monitor and monitor.handle_events(event):
+                    print("current_test_case", self.current_test_case)
+                    self.reset_test_case()
+                    break
 
             if event.type == pygame.QUIT:
                 self.handle_quit_event(event)
@@ -155,23 +214,26 @@ class MazeScene(BaseScene):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not self.game_started:
                     self.game_started = True
+                    self.game_over = False
                     # Cho ghost tính toán đường đi
                     for ghost in self.ghosts:
-                        ghost.move(self.pacman.x, self.pacman.y)
+                        monitor = self.performance_monitors.get(ghost.id)
 
-                    # Bắt đầu đo thông số
-                    self.performance_monitor.start_monitoring()
+                        monitor.init(ghost.ghost_type, self.current_test_case)  # Truyền test case vào init
+                        # Find Path
+                        ghost.move(self.pacman.y, self.pacman.x)
 
-                # Xử lý di chuyển Pacman trong level 6
+                        
                 elif self.game_started and self.level_id == 6:
                     if event.key == pygame.K_UP or event.key == pygame.K_w:
-                        self.pacman.move(0, -1)
+                        self.pacman.set_next_direction(-1, 0)
                     elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                        self.pacman.move(0, 1)
+                        self.pacman.set_next_direction(1, 0)
                     elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                        self.pacman.move(-1, 0)
-                    elif event.key == pygame.K_RIGHT:
-                        self.pacman.move(1, 0)
+                        self.pacman.set_next_direction(0, -1)
+                    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                        self.pacman.set_next_direction(0, 1)
+
             # Xử lý các nút bấm
             for button in self.buttons:
                 button.update(event)
@@ -180,6 +242,8 @@ class MazeScene(BaseScene):
     def update(self, dt):
         """Cập nhật trạng thái trong mê cung"""
 
+        
+
         if not self.game_started:
             # Cập nhật hiệu ứng nhấp nháy
             current_time = time.time()
@@ -187,58 +251,98 @@ class MazeScene(BaseScene):
                 self.show_text = not self.show_text
                 self.last_blink_time = current_time
 
-        if self.game_started:
+        if self.game_started and not self.game_over:
             # Nếu là level 6 thì cho ghost tính toán đường đi liên tục
+            
             if self.level_id == 6:
-                pacman_x, pacman_y = self.pacman.x, self.pacman.y
-                for ghost in self.ghosts:
-                    ghost.move(pacman_x, pacman_y)
-                    ghost.follow_path()
-            # Nếu không phải level 6 thì cho ghost tính toán đường đi 1 lần
-            else:
-                for ghost in self.ghosts:
-                    ghost.follow_path()
+                self.pacman.update()
+                if self.pacman._score == Config.MAX_POINT_FROM_FOOD:
+                    # switch to win scene
+                    sleep_time = 0.2  # Thời gian chờ trước khi chuyển cảnh
+                    time.sleep(sleep_time)  # Chờ trong 2 giây
+                    self.scene_manager.switch_to("WinScene")
+
+
+
+
             # Kiểm tra va chạm với Ghost
             for ghost in self.ghosts:
-                if ghost.x == self.pacman.x and ghost.y == self.pacman.y:
-                    expanded_nodes = ghost.expanded_nodes
-                    self.performance_monitor.stop_monitoring(expanded_nodes)
+                # print(self.current_map)
+                ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map, self.position_lock)
+                # ghost.follow_path(self.pacman.y, self.pacman.x, self.current_map, self.position_lock)
+                ghost.update()
+                if ghost.x == self.pacman.y and ghost.y == self.pacman.x:
+                    self.game_over = True
+                    self.sounds.play_sound("pacman_death")
+                    expanded_nodes = ghost.total_expanded_nodes
+                    # self.expanded_nodes.append(ghost.expanded_nodes)
+                    # self.performance_monitor.stop_monitoring(expanded_nodes)
+                    monitor = self.performance_monitors.get(ghost.id)
+                    if monitor:
+                        monitor.stop_monitoring(expanded_nodes)  # Dừng monitor cho ghost tương ứng
+                    for monitor in self.performance_monitors.values():
+                        if monitor:
+                            monitor.stop_monitoring(expanded_nodes)
+
 
     def render(self, screen):
-        """Vẽ mê cung"""
-        self.screen.fill((0, 0, 0))  
-        self.maze.draw()
+        if not self.end: 
+            
+            """Vẽ mê cung"""
+            self.screen.fill((0, 0, 0))  
+            self.maze.draw()
 
-        # Vẽ Pacman
-        self.pacman.draw(self.screen, Config.TILE_HEIGHT)
+            # Vẽ Pacman
+            self.pacman.draw(self.screen, Config.TILE_HEIGHT)
 
-        # Vẽ các Ghost
-        for ghost in self.ghosts:
-            ghost.draw(self.screen, Config.TILE_HEIGHT)
+            # Vẽ các Ghost
+            for ghost in self.ghosts:
+                ghost.draw(self.screen, Config.TILE_HEIGHT)
 
-        # Vẽ các nút test nếu level cho phép
-        if self.level_config["show_test_buttons"]:
-            for button in self.buttons:
-                button.draw(self.screen)
+            # Vẽ các nút test nếu level cho phép
+            if self.level_config["show_test_buttons"]:
+                for button in self.buttons:
+                    button.draw(self.screen)
 
-        # Vẽ nút thoát
-        self.quit_button.draw(screen)
+            # Vẽ nút thoát
+            self.quit_button.draw(screen)
 
-        # Vẽ thông báo bắt đầu nếu game chưa bắt đầu
-        if not self.game_started:
-            # Vẽ hiệu ứng mờ (không bao gồm khu vực nút bấm)
-            screen.blit(self.blur_surface, (0, 0))
+            # Vẽ thông báo bắt đầu nếu game chưa bắt đầu
+            if not self.game_started:
+                # Vẽ hiệu ứng mờ (không bao gồm khu vực nút bấm)
+                screen.blit(self.blur_surface, (0, 0))
 
-            if self.show_text:
-                # Vẽ hướng dẫn bắt đầu
-                start_text = self.start_message_font.render("Press SPACE to start", True, (255, 255, 255))
-                start_rect = start_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
-                screen.blit(start_text, start_rect)
+                if self.show_text:
+                    # Vẽ hướng dẫn bắt đầu
+                    start_text = self.start_message_font.render("Press SPACE to start", True, (255, 255, 255))
+                    start_rect = start_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
+                    screen.blit(start_text, start_rect)
 
-        # Vẽ popup hiệu suất nếu cần
-        self.performance_monitor.draw_popup(screen)
+            # Vẽ popup hiệu suất nếu cần
+            # self.performance_monitor.draw_popup(screen)
+            if (self.game_over):
+                for ghost in self.ghosts:
+                    monitor = self.performance_monitors.get(ghost.id)
+                    # monitor.init(ghost.ghost_type)
+            
+                    monitor.set_memory(ghost.memory)
+                    monitor.set_time(ghost.total_time)
+                    monitor.set_expanded_nodes(ghost.total_expanded_nodes)
+            # Đếm số monitor hợp lệ
+            active_monitors = [m for m in self.performance_monitors.values() if m]
+            check_total_monitor = len(active_monitors) > 1
+            # Lặp và truyền biến check vào draw_popup
+            for i, monitor in enumerate(active_monitors, start=1):
+                status = monitor.draw_popup(screen, position=i, check=check_total_monitor)
+                pygame.display.flip()
+                if status:
+                    self.end = True
 
-        pygame.display.flip()
+            if (self.level_id == 6 ) :
+                # Render text hiển thị số điểm của pacman
+                score_text = self.start_message_font.render(f"Score: {self.pacman._score}", True, (255, 255, 255))
+                score_rect = score_text.get_rect(center=(self.screen_width // 2, self.screen_height - 30))
+                screen.blit(score_text, score_rect)
 
     def handle_quit_event(self, event):
         """Xử lý sự kiện thoát game"""
@@ -249,13 +353,15 @@ class MazeScene(BaseScene):
     def on_enter(self):
         """Được gọi khi vào scene maze"""
         # Phát nhạc nền
-        Sounds().play_music("menu")
+        Sounds().play_music("game")
         print("Đã vào Maze Scene")
 
     def on_exit(self):
         """Được gọi khi rời scene menu"""
         # Dừng nhạc nền
-        Sounds().stop_music("menu")
+        Sounds().stop_music()
+        board = BoardInfo()
+        MazeDrawing._shared_map = deepcopy(board.initMaze)  # Lấy ma trận cho level
         print("Đã rời Main Menu")
 
     # Các hàm callback cho các nút
