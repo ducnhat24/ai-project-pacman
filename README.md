@@ -29,7 +29,7 @@ py main.py
 
 ## 📁 Project Structure
 ```
-Pacman-Game/
+ai-project-pacman/
 ├── algorithms                  # Các thuật toán tìm kiếm
 │   ├── astar.py                  
 │   ├── bfs.py          
