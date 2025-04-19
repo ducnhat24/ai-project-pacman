@@ -20,7 +20,7 @@ Before installing dependencies or running the game, make sure you have Python 3.
 
 - **Windows**  
   1. Go to the official Python downloads page: https://www.python.org/downloads/windows/
-  2. Download the latest “Windows installer (64-bit)” and **check “Add Python 3.x to PATH”** on the first screen.  
+  2. Download the latest “Windows installer (64-bit)”.
   3. Run the installer.
 
 - **macOS**  
