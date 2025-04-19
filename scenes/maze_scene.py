@@ -72,8 +72,9 @@ class MazeScene(BaseScene):
         self.screen_width = Config.SCREEN_WIDTH
 
         spacing = 15
-
         self.end = False
+        # Thêm biến để theo dõi button đang được chọn
+        self.selected_button = None
 
         # Tạo danh sách các nút test nếu level cho phép
         self.buttons = []
@@ -145,6 +146,13 @@ class MazeScene(BaseScene):
         MazeDrawing._shared_map = deepcopy(self.board.initMaze)  # Lấy ma trận cho level
         
         if test_case_name in TEST_CASES:
+            # Cập nhật button được chọn
+            for button in self.buttons:
+                if button.data == test_case_name:
+                    self.selected_button = button
+                else:
+                    button.is_selected = False
+            
             self.current_test_case = test_case_name
             test_case = TEST_CASES[test_case_name]
             x, y = test_case["ghost_pos"]
